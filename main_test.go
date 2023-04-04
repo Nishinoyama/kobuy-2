@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-faker/faker/v4"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"entgo.io/ent/dialect"
@@ -25,17 +26,28 @@ func TestMainKobuy2InMemory(t *testing.T) {
 	}
 
 	faker.SetGenerateUniqueValues(true)
-	for i := 0; i < 5; i++ {
-		user, err := client.User.Create().SetName(faker.FirstName()).Save(ctx)
+	{
+		userCreates := make([]*ent.UserCreate, 5)
+		for i := 0; i < 5; i++ {
+			userCreates[i] = client.User.Create().SetName(faker.FirstName())
+		}
+		users, err := client.User.CreateBulk(userCreates...).Save(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
-		for j := 0; j < 3; j++ {
-			grocery, err := client.Grocery.Create().SetName(faker.Word()).SetProvider(user).Save(ctx)
-			if err != nil {
-				return
+
+		groceryCreates := make([]*ent.GroceryCreate, 0, 15)
+		for _, user := range users {
+			for i := 0; i < 3; i++ {
+				groceryCreates = append(groceryCreates, client.Grocery.Create().SetName(faker.Word()).SetProvider(user))
 			}
-			t.Log(grocery)
+		}
+		if err := client.Grocery.CreateBulk(groceryCreates...).Exec(ctx); err != nil {
+			t.Fatal(err)
+		}
+		cnt := client.Grocery.Query().CountX(ctx)
+		if !assert.Equal(t, cnt, 15, "3 * 5 !=", cnt) {
+			t.FailNow()
 		}
 	}
 
