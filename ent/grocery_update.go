@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -31,6 +32,46 @@ func (gu *GroceryUpdate) Where(ps ...predicate.Grocery) *GroceryUpdate {
 // SetName sets the "name" field.
 func (gu *GroceryUpdate) SetName(s string) *GroceryUpdate {
 	gu.mutation.SetName(s)
+	return gu
+}
+
+// SetPrice sets the "price" field.
+func (gu *GroceryUpdate) SetPrice(i int) *GroceryUpdate {
+	gu.mutation.ResetPrice()
+	gu.mutation.SetPrice(i)
+	return gu
+}
+
+// AddPrice adds i to the "price" field.
+func (gu *GroceryUpdate) AddPrice(i int) *GroceryUpdate {
+	gu.mutation.AddPrice(i)
+	return gu
+}
+
+// SetUnit sets the "unit" field.
+func (gu *GroceryUpdate) SetUnit(i int) *GroceryUpdate {
+	gu.mutation.ResetUnit()
+	gu.mutation.SetUnit(i)
+	return gu
+}
+
+// AddUnit adds i to the "unit" field.
+func (gu *GroceryUpdate) AddUnit(i int) *GroceryUpdate {
+	gu.mutation.AddUnit(i)
+	return gu
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (gu *GroceryUpdate) SetExpirationDate(t time.Time) *GroceryUpdate {
+	gu.mutation.SetExpirationDate(t)
+	return gu
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (gu *GroceryUpdate) SetNillableExpirationDate(t *time.Time) *GroceryUpdate {
+	if t != nil {
+		gu.SetExpirationDate(*t)
+	}
 	return gu
 }
 
@@ -91,7 +132,25 @@ func (gu *GroceryUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (gu *GroceryUpdate) check() error {
+	if v, ok := gu.mutation.Price(); ok {
+		if err := grocery.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Grocery.price": %w`, err)}
+		}
+	}
+	if v, ok := gu.mutation.Unit(); ok {
+		if err := grocery.UnitValidator(v); err != nil {
+			return &ValidationError{Name: "unit", err: fmt.Errorf(`ent: validator failed for field "Grocery.unit": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (gu *GroceryUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := gu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(grocery.Table, grocery.Columns, sqlgraph.NewFieldSpec(grocery.FieldID, field.TypeInt))
 	if ps := gu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -102,6 +161,21 @@ func (gu *GroceryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := gu.mutation.Name(); ok {
 		_spec.SetField(grocery.FieldName, field.TypeString, value)
+	}
+	if value, ok := gu.mutation.Price(); ok {
+		_spec.SetField(grocery.FieldPrice, field.TypeInt, value)
+	}
+	if value, ok := gu.mutation.AddedPrice(); ok {
+		_spec.AddField(grocery.FieldPrice, field.TypeInt, value)
+	}
+	if value, ok := gu.mutation.Unit(); ok {
+		_spec.SetField(grocery.FieldUnit, field.TypeInt, value)
+	}
+	if value, ok := gu.mutation.AddedUnit(); ok {
+		_spec.AddField(grocery.FieldUnit, field.TypeInt, value)
+	}
+	if value, ok := gu.mutation.ExpirationDate(); ok {
+		_spec.SetField(grocery.FieldExpirationDate, field.TypeTime, value)
 	}
 	if gu.mutation.ProviderCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -155,6 +229,46 @@ type GroceryUpdateOne struct {
 // SetName sets the "name" field.
 func (guo *GroceryUpdateOne) SetName(s string) *GroceryUpdateOne {
 	guo.mutation.SetName(s)
+	return guo
+}
+
+// SetPrice sets the "price" field.
+func (guo *GroceryUpdateOne) SetPrice(i int) *GroceryUpdateOne {
+	guo.mutation.ResetPrice()
+	guo.mutation.SetPrice(i)
+	return guo
+}
+
+// AddPrice adds i to the "price" field.
+func (guo *GroceryUpdateOne) AddPrice(i int) *GroceryUpdateOne {
+	guo.mutation.AddPrice(i)
+	return guo
+}
+
+// SetUnit sets the "unit" field.
+func (guo *GroceryUpdateOne) SetUnit(i int) *GroceryUpdateOne {
+	guo.mutation.ResetUnit()
+	guo.mutation.SetUnit(i)
+	return guo
+}
+
+// AddUnit adds i to the "unit" field.
+func (guo *GroceryUpdateOne) AddUnit(i int) *GroceryUpdateOne {
+	guo.mutation.AddUnit(i)
+	return guo
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (guo *GroceryUpdateOne) SetExpirationDate(t time.Time) *GroceryUpdateOne {
+	guo.mutation.SetExpirationDate(t)
+	return guo
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (guo *GroceryUpdateOne) SetNillableExpirationDate(t *time.Time) *GroceryUpdateOne {
+	if t != nil {
+		guo.SetExpirationDate(*t)
+	}
 	return guo
 }
 
@@ -228,7 +342,25 @@ func (guo *GroceryUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (guo *GroceryUpdateOne) check() error {
+	if v, ok := guo.mutation.Price(); ok {
+		if err := grocery.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Grocery.price": %w`, err)}
+		}
+	}
+	if v, ok := guo.mutation.Unit(); ok {
+		if err := grocery.UnitValidator(v); err != nil {
+			return &ValidationError{Name: "unit", err: fmt.Errorf(`ent: validator failed for field "Grocery.unit": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (guo *GroceryUpdateOne) sqlSave(ctx context.Context) (_node *Grocery, err error) {
+	if err := guo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(grocery.Table, grocery.Columns, sqlgraph.NewFieldSpec(grocery.FieldID, field.TypeInt))
 	id, ok := guo.mutation.ID()
 	if !ok {
@@ -256,6 +388,21 @@ func (guo *GroceryUpdateOne) sqlSave(ctx context.Context) (_node *Grocery, err e
 	}
 	if value, ok := guo.mutation.Name(); ok {
 		_spec.SetField(grocery.FieldName, field.TypeString, value)
+	}
+	if value, ok := guo.mutation.Price(); ok {
+		_spec.SetField(grocery.FieldPrice, field.TypeInt, value)
+	}
+	if value, ok := guo.mutation.AddedPrice(); ok {
+		_spec.AddField(grocery.FieldPrice, field.TypeInt, value)
+	}
+	if value, ok := guo.mutation.Unit(); ok {
+		_spec.SetField(grocery.FieldUnit, field.TypeInt, value)
+	}
+	if value, ok := guo.mutation.AddedUnit(); ok {
+		_spec.AddField(grocery.FieldUnit, field.TypeInt, value)
+	}
+	if value, ok := guo.mutation.ExpirationDate(); ok {
+		_spec.SetField(grocery.FieldExpirationDate, field.TypeTime, value)
 	}
 	if guo.mutation.ProviderCleared() {
 		edge := &sqlgraph.EdgeSpec{

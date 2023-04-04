@@ -12,6 +12,9 @@ var (
 	GroceriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "price", Type: field.TypeInt},
+		{Name: "unit", Type: field.TypeInt},
+		{Name: "expiration_date", Type: field.TypeTime},
 		{Name: "user_provided_groceries", Type: field.TypeInt, Nullable: true},
 	}
 	// GroceriesTable holds the schema information for the "groceries" table.
@@ -22,7 +25,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "groceries_users_provided_groceries",
-				Columns:    []*schema.Column{GroceriesColumns[2]},
+				Columns:    []*schema.Column{GroceriesColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

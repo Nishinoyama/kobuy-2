@@ -3,6 +3,8 @@
 package grocery
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
@@ -56,6 +58,21 @@ func IDLTE(id int) predicate.Grocery {
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.Grocery {
 	return predicate.Grocery(sql.FieldEQ(FieldName, v))
+}
+
+// Price applies equality check predicate on the "price" field. It's identical to PriceEQ.
+func Price(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldPrice, v))
+}
+
+// Unit applies equality check predicate on the "unit" field. It's identical to UnitEQ.
+func Unit(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldUnit, v))
+}
+
+// ExpirationDate applies equality check predicate on the "expiration_date" field. It's identical to ExpirationDateEQ.
+func ExpirationDate(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldExpirationDate, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -121,6 +138,126 @@ func NameEqualFold(v string) predicate.Grocery {
 // NameContainsFold applies the ContainsFold predicate on the "name" field.
 func NameContainsFold(v string) predicate.Grocery {
 	return predicate.Grocery(sql.FieldContainsFold(FieldName, v))
+}
+
+// PriceEQ applies the EQ predicate on the "price" field.
+func PriceEQ(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldPrice, v))
+}
+
+// PriceNEQ applies the NEQ predicate on the "price" field.
+func PriceNEQ(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNEQ(FieldPrice, v))
+}
+
+// PriceIn applies the In predicate on the "price" field.
+func PriceIn(vs ...int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldIn(FieldPrice, vs...))
+}
+
+// PriceNotIn applies the NotIn predicate on the "price" field.
+func PriceNotIn(vs ...int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNotIn(FieldPrice, vs...))
+}
+
+// PriceGT applies the GT predicate on the "price" field.
+func PriceGT(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGT(FieldPrice, v))
+}
+
+// PriceGTE applies the GTE predicate on the "price" field.
+func PriceGTE(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGTE(FieldPrice, v))
+}
+
+// PriceLT applies the LT predicate on the "price" field.
+func PriceLT(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLT(FieldPrice, v))
+}
+
+// PriceLTE applies the LTE predicate on the "price" field.
+func PriceLTE(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLTE(FieldPrice, v))
+}
+
+// UnitEQ applies the EQ predicate on the "unit" field.
+func UnitEQ(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldUnit, v))
+}
+
+// UnitNEQ applies the NEQ predicate on the "unit" field.
+func UnitNEQ(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNEQ(FieldUnit, v))
+}
+
+// UnitIn applies the In predicate on the "unit" field.
+func UnitIn(vs ...int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldIn(FieldUnit, vs...))
+}
+
+// UnitNotIn applies the NotIn predicate on the "unit" field.
+func UnitNotIn(vs ...int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNotIn(FieldUnit, vs...))
+}
+
+// UnitGT applies the GT predicate on the "unit" field.
+func UnitGT(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGT(FieldUnit, v))
+}
+
+// UnitGTE applies the GTE predicate on the "unit" field.
+func UnitGTE(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGTE(FieldUnit, v))
+}
+
+// UnitLT applies the LT predicate on the "unit" field.
+func UnitLT(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLT(FieldUnit, v))
+}
+
+// UnitLTE applies the LTE predicate on the "unit" field.
+func UnitLTE(v int) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLTE(FieldUnit, v))
+}
+
+// ExpirationDateEQ applies the EQ predicate on the "expiration_date" field.
+func ExpirationDateEQ(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldExpirationDate, v))
+}
+
+// ExpirationDateNEQ applies the NEQ predicate on the "expiration_date" field.
+func ExpirationDateNEQ(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNEQ(FieldExpirationDate, v))
+}
+
+// ExpirationDateIn applies the In predicate on the "expiration_date" field.
+func ExpirationDateIn(vs ...time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldIn(FieldExpirationDate, vs...))
+}
+
+// ExpirationDateNotIn applies the NotIn predicate on the "expiration_date" field.
+func ExpirationDateNotIn(vs ...time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNotIn(FieldExpirationDate, vs...))
+}
+
+// ExpirationDateGT applies the GT predicate on the "expiration_date" field.
+func ExpirationDateGT(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGT(FieldExpirationDate, v))
+}
+
+// ExpirationDateGTE applies the GTE predicate on the "expiration_date" field.
+func ExpirationDateGTE(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGTE(FieldExpirationDate, v))
+}
+
+// ExpirationDateLT applies the LT predicate on the "expiration_date" field.
+func ExpirationDateLT(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLT(FieldExpirationDate, v))
+}
+
+// ExpirationDateLTE applies the LTE predicate on the "expiration_date" field.
+func ExpirationDateLTE(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLTE(FieldExpirationDate, v))
 }
 
 // HasProvider applies the HasEdge predicate on the "provider" edge.

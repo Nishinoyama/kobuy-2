@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"time"
 )
 
 // Grocery holds the schema definition for the Grocery entity.
@@ -15,6 +16,9 @@ type Grocery struct {
 func (Grocery) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Unique(),
+		field.Int("price").NonNegative(),
+		field.Int("unit").NonNegative(),
+		field.Time("expiration_date").Default(time.Now().Add(time.Hour * 24 * 365)), // almost a year
 	}
 }
 

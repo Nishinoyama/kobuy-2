@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -23,6 +24,32 @@ type GroceryCreate struct {
 // SetName sets the "name" field.
 func (gc *GroceryCreate) SetName(s string) *GroceryCreate {
 	gc.mutation.SetName(s)
+	return gc
+}
+
+// SetPrice sets the "price" field.
+func (gc *GroceryCreate) SetPrice(i int) *GroceryCreate {
+	gc.mutation.SetPrice(i)
+	return gc
+}
+
+// SetUnit sets the "unit" field.
+func (gc *GroceryCreate) SetUnit(i int) *GroceryCreate {
+	gc.mutation.SetUnit(i)
+	return gc
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (gc *GroceryCreate) SetExpirationDate(t time.Time) *GroceryCreate {
+	gc.mutation.SetExpirationDate(t)
+	return gc
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (gc *GroceryCreate) SetNillableExpirationDate(t *time.Time) *GroceryCreate {
+	if t != nil {
+		gc.SetExpirationDate(*t)
+	}
 	return gc
 }
 
@@ -52,6 +79,7 @@ func (gc *GroceryCreate) Mutation() *GroceryMutation {
 
 // Save creates the Grocery in the database.
 func (gc *GroceryCreate) Save(ctx context.Context) (*Grocery, error) {
+	gc.defaults()
 	return withHooks[*Grocery, GroceryMutation](ctx, gc.sqlSave, gc.mutation, gc.hooks)
 }
 
@@ -77,10 +105,37 @@ func (gc *GroceryCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (gc *GroceryCreate) defaults() {
+	if _, ok := gc.mutation.ExpirationDate(); !ok {
+		v := grocery.DefaultExpirationDate
+		gc.mutation.SetExpirationDate(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (gc *GroceryCreate) check() error {
 	if _, ok := gc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Grocery.name"`)}
+	}
+	if _, ok := gc.mutation.Price(); !ok {
+		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Grocery.price"`)}
+	}
+	if v, ok := gc.mutation.Price(); ok {
+		if err := grocery.PriceValidator(v); err != nil {
+			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Grocery.price": %w`, err)}
+		}
+	}
+	if _, ok := gc.mutation.Unit(); !ok {
+		return &ValidationError{Name: "unit", err: errors.New(`ent: missing required field "Grocery.unit"`)}
+	}
+	if v, ok := gc.mutation.Unit(); ok {
+		if err := grocery.UnitValidator(v); err != nil {
+			return &ValidationError{Name: "unit", err: fmt.Errorf(`ent: validator failed for field "Grocery.unit": %w`, err)}
+		}
+	}
+	if _, ok := gc.mutation.ExpirationDate(); !ok {
+		return &ValidationError{Name: "expiration_date", err: errors.New(`ent: missing required field "Grocery.expiration_date"`)}
 	}
 	return nil
 }
@@ -111,6 +166,18 @@ func (gc *GroceryCreate) createSpec() (*Grocery, *sqlgraph.CreateSpec) {
 	if value, ok := gc.mutation.Name(); ok {
 		_spec.SetField(grocery.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := gc.mutation.Price(); ok {
+		_spec.SetField(grocery.FieldPrice, field.TypeInt, value)
+		_node.Price = value
+	}
+	if value, ok := gc.mutation.Unit(); ok {
+		_spec.SetField(grocery.FieldUnit, field.TypeInt, value)
+		_node.Unit = value
+	}
+	if value, ok := gc.mutation.ExpirationDate(); ok {
+		_spec.SetField(grocery.FieldExpirationDate, field.TypeTime, value)
+		_node.ExpirationDate = value
 	}
 	if nodes := gc.mutation.ProviderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -146,6 +213,7 @@ func (gcb *GroceryCreateBulk) Save(ctx context.Context) ([]*Grocery, error) {
 	for i := range gcb.builders {
 		func(i int, root context.Context) {
 			builder := gcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*GroceryMutation)
 				if !ok {

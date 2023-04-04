@@ -2,6 +2,10 @@
 
 package grocery
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the grocery type in the database.
 	Label = "grocery"
@@ -9,6 +13,12 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldPrice holds the string denoting the price field in the database.
+	FieldPrice = "price"
+	// FieldUnit holds the string denoting the unit field in the database.
+	FieldUnit = "unit"
+	// FieldExpirationDate holds the string denoting the expiration_date field in the database.
+	FieldExpirationDate = "expiration_date"
 	// EdgeProvider holds the string denoting the provider edge name in mutations.
 	EdgeProvider = "provider"
 	// Table holds the table name of the grocery in the database.
@@ -26,6 +36,9 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldPrice,
+	FieldUnit,
+	FieldExpirationDate,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "groceries"
@@ -48,3 +61,12 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// PriceValidator is a validator for the "price" field. It is called by the builders before save.
+	PriceValidator func(int) error
+	// UnitValidator is a validator for the "unit" field. It is called by the builders before save.
+	UnitValidator func(int) error
+	// DefaultExpirationDate holds the default value on creation for the "expiration_date" field.
+	DefaultExpirationDate time.Time
+)

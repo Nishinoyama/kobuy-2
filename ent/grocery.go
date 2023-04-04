@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
@@ -18,6 +19,12 @@ type Grocery struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Price holds the value of the "price" field.
+	Price int `json:"price,omitempty"`
+	// Unit holds the value of the "unit" field.
+	Unit int `json:"unit,omitempty"`
+	// ExpirationDate holds the value of the "expiration_date" field.
+	ExpirationDate time.Time `json:"expiration_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroceryQuery when eager-loading is set.
 	Edges                   GroceryEdges `json:"edges"`
@@ -51,10 +58,12 @@ func (*Grocery) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case grocery.FieldID:
+		case grocery.FieldID, grocery.FieldPrice, grocery.FieldUnit:
 			values[i] = new(sql.NullInt64)
 		case grocery.FieldName:
 			values[i] = new(sql.NullString)
+		case grocery.FieldExpirationDate:
+			values[i] = new(sql.NullTime)
 		case grocery.ForeignKeys[0]: // user_provided_groceries
 			values[i] = new(sql.NullInt64)
 		default:
@@ -83,6 +92,24 @@ func (gr *Grocery) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				gr.Name = value.String
+			}
+		case grocery.FieldPrice:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field price", values[i])
+			} else if value.Valid {
+				gr.Price = int(value.Int64)
+			}
+		case grocery.FieldUnit:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field unit", values[i])
+			} else if value.Valid {
+				gr.Unit = int(value.Int64)
+			}
+		case grocery.FieldExpirationDate:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field expiration_date", values[i])
+			} else if value.Valid {
+				gr.ExpirationDate = value.Time
 			}
 		case grocery.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -126,6 +153,15 @@ func (gr *Grocery) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", gr.ID))
 	builder.WriteString("name=")
 	builder.WriteString(gr.Name)
+	builder.WriteString(", ")
+	builder.WriteString("price=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Price))
+	builder.WriteString(", ")
+	builder.WriteString("unit=")
+	builder.WriteString(fmt.Sprintf("%v", gr.Unit))
+	builder.WriteString(", ")
+	builder.WriteString("expiration_date=")
+	builder.WriteString(gr.ExpirationDate.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

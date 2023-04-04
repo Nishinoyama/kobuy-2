@@ -39,7 +39,10 @@ func TestMainKobuy2InMemory(t *testing.T) {
 		groceryCreates := make([]*ent.GroceryCreate, 0, 15)
 		for _, user := range users {
 			for i := 0; i < 3; i++ {
-				groceryCreates = append(groceryCreates, client.Grocery.Create().SetName(faker.Word()).SetProvider(user))
+				groceryCreates = append(
+					groceryCreates,
+					client.Grocery.Create().SetName(faker.Word()).SetPrice(100).SetUnit(i*3+1).SetProvider(user),
+				)
 			}
 		}
 		if err := client.Grocery.CreateBulk(groceryCreates...).Exec(ctx); err != nil {
@@ -64,7 +67,7 @@ func TestMainKobuy2InMemory(t *testing.T) {
 	us := client.Debug().User.Query().WithProvidedGroceries().AllX(ctx)
 	for _, u := range us {
 		for _, g := range u.Edges.ProvidedGroceries {
-			t.Log(g.Name, "by", u.Name)
+			t.Log(g.Name, "by", u.Name, "rest", g.Unit, "price", g.Price, "expire at", g.ExpirationDate)
 		}
 		if err != nil {
 			t.Fatal(err)

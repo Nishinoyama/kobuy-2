@@ -2,8 +2,29 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/schema"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	groceryFields := schema.Grocery{}.Fields()
+	_ = groceryFields
+	// groceryDescPrice is the schema descriptor for price field.
+	groceryDescPrice := groceryFields[1].Descriptor()
+	// grocery.PriceValidator is a validator for the "price" field. It is called by the builders before save.
+	grocery.PriceValidator = groceryDescPrice.Validators[0].(func(int) error)
+	// groceryDescUnit is the schema descriptor for unit field.
+	groceryDescUnit := groceryFields[2].Descriptor()
+	// grocery.UnitValidator is a validator for the "unit" field. It is called by the builders before save.
+	grocery.UnitValidator = groceryDescUnit.Validators[0].(func(int) error)
+	// groceryDescExpirationDate is the schema descriptor for expiration_date field.
+	groceryDescExpirationDate := groceryFields[3].Descriptor()
+	// grocery.DefaultExpirationDate holds the default value on creation for the expiration_date field.
+	grocery.DefaultExpirationDate = groceryDescExpirationDate.Default.(time.Time)
 }

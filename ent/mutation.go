@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -35,6 +36,11 @@ type GroceryMutation struct {
 	typ             string
 	id              *int
 	name            *string
+	price           *int
+	addprice        *int
+	unit            *int
+	addunit         *int
+	expiration_date *time.Time
 	clearedFields   map[string]struct{}
 	provider        *int
 	clearedprovider bool
@@ -177,6 +183,154 @@ func (m *GroceryMutation) ResetName() {
 	m.name = nil
 }
 
+// SetPrice sets the "price" field.
+func (m *GroceryMutation) SetPrice(i int) {
+	m.price = &i
+	m.addprice = nil
+}
+
+// Price returns the value of the "price" field in the mutation.
+func (m *GroceryMutation) Price() (r int, exists bool) {
+	v := m.price
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrice returns the old "price" field's value of the Grocery entity.
+// If the Grocery object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroceryMutation) OldPrice(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrice is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrice requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrice: %w", err)
+	}
+	return oldValue.Price, nil
+}
+
+// AddPrice adds i to the "price" field.
+func (m *GroceryMutation) AddPrice(i int) {
+	if m.addprice != nil {
+		*m.addprice += i
+	} else {
+		m.addprice = &i
+	}
+}
+
+// AddedPrice returns the value that was added to the "price" field in this mutation.
+func (m *GroceryMutation) AddedPrice() (r int, exists bool) {
+	v := m.addprice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPrice resets all changes to the "price" field.
+func (m *GroceryMutation) ResetPrice() {
+	m.price = nil
+	m.addprice = nil
+}
+
+// SetUnit sets the "unit" field.
+func (m *GroceryMutation) SetUnit(i int) {
+	m.unit = &i
+	m.addunit = nil
+}
+
+// Unit returns the value of the "unit" field in the mutation.
+func (m *GroceryMutation) Unit() (r int, exists bool) {
+	v := m.unit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUnit returns the old "unit" field's value of the Grocery entity.
+// If the Grocery object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroceryMutation) OldUnit(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUnit is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUnit requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUnit: %w", err)
+	}
+	return oldValue.Unit, nil
+}
+
+// AddUnit adds i to the "unit" field.
+func (m *GroceryMutation) AddUnit(i int) {
+	if m.addunit != nil {
+		*m.addunit += i
+	} else {
+		m.addunit = &i
+	}
+}
+
+// AddedUnit returns the value that was added to the "unit" field in this mutation.
+func (m *GroceryMutation) AddedUnit() (r int, exists bool) {
+	v := m.addunit
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUnit resets all changes to the "unit" field.
+func (m *GroceryMutation) ResetUnit() {
+	m.unit = nil
+	m.addunit = nil
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (m *GroceryMutation) SetExpirationDate(t time.Time) {
+	m.expiration_date = &t
+}
+
+// ExpirationDate returns the value of the "expiration_date" field in the mutation.
+func (m *GroceryMutation) ExpirationDate() (r time.Time, exists bool) {
+	v := m.expiration_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpirationDate returns the old "expiration_date" field's value of the Grocery entity.
+// If the Grocery object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroceryMutation) OldExpirationDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpirationDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpirationDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpirationDate: %w", err)
+	}
+	return oldValue.ExpirationDate, nil
+}
+
+// ResetExpirationDate resets all changes to the "expiration_date" field.
+func (m *GroceryMutation) ResetExpirationDate() {
+	m.expiration_date = nil
+}
+
 // SetProviderID sets the "provider" edge to the User entity by id.
 func (m *GroceryMutation) SetProviderID(id int) {
 	m.provider = &id
@@ -250,9 +404,18 @@ func (m *GroceryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroceryMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 4)
 	if m.name != nil {
 		fields = append(fields, grocery.FieldName)
+	}
+	if m.price != nil {
+		fields = append(fields, grocery.FieldPrice)
+	}
+	if m.unit != nil {
+		fields = append(fields, grocery.FieldUnit)
+	}
+	if m.expiration_date != nil {
+		fields = append(fields, grocery.FieldExpirationDate)
 	}
 	return fields
 }
@@ -264,6 +427,12 @@ func (m *GroceryMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case grocery.FieldName:
 		return m.Name()
+	case grocery.FieldPrice:
+		return m.Price()
+	case grocery.FieldUnit:
+		return m.Unit()
+	case grocery.FieldExpirationDate:
+		return m.ExpirationDate()
 	}
 	return nil, false
 }
@@ -275,6 +444,12 @@ func (m *GroceryMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case grocery.FieldName:
 		return m.OldName(ctx)
+	case grocery.FieldPrice:
+		return m.OldPrice(ctx)
+	case grocery.FieldUnit:
+		return m.OldUnit(ctx)
+	case grocery.FieldExpirationDate:
+		return m.OldExpirationDate(ctx)
 	}
 	return nil, fmt.Errorf("unknown Grocery field %s", name)
 }
@@ -291,6 +466,27 @@ func (m *GroceryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
+	case grocery.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrice(v)
+		return nil
+	case grocery.FieldUnit:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUnit(v)
+		return nil
+	case grocery.FieldExpirationDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpirationDate(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Grocery field %s", name)
 }
@@ -298,13 +494,26 @@ func (m *GroceryMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *GroceryMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addprice != nil {
+		fields = append(fields, grocery.FieldPrice)
+	}
+	if m.addunit != nil {
+		fields = append(fields, grocery.FieldUnit)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *GroceryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case grocery.FieldPrice:
+		return m.AddedPrice()
+	case grocery.FieldUnit:
+		return m.AddedUnit()
+	}
 	return nil, false
 }
 
@@ -313,6 +522,20 @@ func (m *GroceryMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *GroceryMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case grocery.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrice(v)
+		return nil
+	case grocery.FieldUnit:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUnit(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Grocery numeric field %s", name)
 }
@@ -342,6 +565,15 @@ func (m *GroceryMutation) ResetField(name string) error {
 	switch name {
 	case grocery.FieldName:
 		m.ResetName()
+		return nil
+	case grocery.FieldPrice:
+		m.ResetPrice()
+		return nil
+	case grocery.FieldUnit:
+		m.ResetUnit()
+		return nil
+	case grocery.FieldExpirationDate:
+		m.ResetExpirationDate()
 		return nil
 	}
 	return fmt.Errorf("unknown Grocery field %s", name)
