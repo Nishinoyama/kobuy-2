@@ -3,30 +3,32 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-faker/faker/v4"
-	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/stretchr/testify/assert"
-	"testing"
-
 	"entgo.io/ent/dialect"
+	"github.com/go-faker/faker/v4"
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/nishinoyama/kobuy-2/ent"
+	"testing"
 )
 
 func TestMainKobuy2InMemory(t *testing.T) {
+	ctx := context.Background()
 	client, err := ent.Open(dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
+	//client, err := ent.Open(dialect.MySQL, "root:pass@tcp(localhost:3306)/test?parseTime=True")
 	if err != nil {
 		t.Fatalf("failed opening connection to sqlite: %v", err)
 	}
+
 	defer func(client *ent.Client) {
 		_ = client.Close()
 	}(client)
-	ctx := context.Background()
+
 	if err := client.Schema.Create(ctx); err != nil {
 		t.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	faker.SetGenerateUniqueValues(true)
 	{
+		faker.SetGenerateUniqueValues(true)
 		userCreates := make([]*ent.UserCreate, 5)
 		for i := 0; i < 5; i++ {
 			userCreates[i] = client.User.Create().SetName(faker.FirstName())
@@ -45,13 +47,24 @@ func TestMainKobuy2InMemory(t *testing.T) {
 				)
 			}
 		}
-		if err := client.Grocery.CreateBulk(groceryCreates...).Exec(ctx); err != nil {
+		_, err = client.Grocery.CreateBulk(groceryCreates...).Save(ctx)
+		if err != nil {
 			t.Fatal(err)
 		}
-		cnt := client.Grocery.Query().CountX(ctx)
-		if !assert.Equal(t, cnt, 15, "3 * 5 !=", cnt) {
-			t.FailNow()
+
+		tx, err := client.Tx(ctx)
+		if err != nil {
+			t.Fatal(err)
 		}
+
+		u := tx.User.GetX(ctx, 2)
+		g := tx.Grocery.GetX(ctx, 1)
+		tx.Purchase.Create().SetPrice(g.Price).SetAmount(1).SetBuyer(u).SetGrocery(g).ExecX(ctx)
+		tx.Grocery.UpdateOne(g).SetUnit(g.Unit - 1).ExecX(ctx)
+		if err := tx.Commit(); err != nil {
+			t.Fatal(err)
+		}
+
 	}
 
 	//// N + 1
@@ -76,4 +89,5 @@ func TestMainKobuy2InMemory(t *testing.T) {
 	// serialize
 	marshal, err := json.Marshal(us)
 	t.Logf("%s", marshal)
+
 }

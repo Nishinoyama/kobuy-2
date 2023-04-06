@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -24,6 +25,7 @@ type UserQuery struct {
 	inters                []Interceptor
 	predicates            []predicate.User
 	withProvidedGroceries *GroceryQuery
+	withPurchased         *PurchaseQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +77,28 @@ func (uq *UserQuery) QueryProvidedGroceries() *GroceryQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(grocery.Table, grocery.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ProvidedGroceriesTable, user.ProvidedGroceriesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPurchased chains the current query on the "purchased" edge.
+func (uq *UserQuery) QueryPurchased() *PurchaseQuery {
+	query := (&PurchaseClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(purchase.Table, purchase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PurchasedTable, user.PurchasedColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -275,6 +299,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		inters:                append([]Interceptor{}, uq.inters...),
 		predicates:            append([]predicate.User{}, uq.predicates...),
 		withProvidedGroceries: uq.withProvidedGroceries.Clone(),
+		withPurchased:         uq.withPurchased.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -289,6 +314,17 @@ func (uq *UserQuery) WithProvidedGroceries(opts ...func(*GroceryQuery)) *UserQue
 		opt(query)
 	}
 	uq.withProvidedGroceries = query
+	return uq
+}
+
+// WithPurchased tells the query-builder to eager-load the nodes that are connected to
+// the "purchased" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithPurchased(opts ...func(*PurchaseQuery)) *UserQuery {
+	query := (&PurchaseClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withPurchased = query
 	return uq
 }
 
@@ -370,8 +406,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			uq.withProvidedGroceries != nil,
+			uq.withPurchased != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -396,6 +433,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadProvidedGroceries(ctx, query, nodes,
 			func(n *User) { n.Edges.ProvidedGroceries = []*Grocery{} },
 			func(n *User, e *Grocery) { n.Edges.ProvidedGroceries = append(n.Edges.ProvidedGroceries, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withPurchased; query != nil {
+		if err := uq.loadPurchased(ctx, query, nodes,
+			func(n *User) { n.Edges.Purchased = []*Purchase{} },
+			func(n *User, e *Purchase) { n.Edges.Purchased = append(n.Edges.Purchased, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -428,6 +472,37 @@ func (uq *UserQuery) loadProvidedGroceries(ctx context.Context, query *GroceryQu
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_provided_groceries" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, nodes []*User, init func(*User), assign func(*User, *Purchase)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Purchase(func(s *sql.Selector) {
+		s.Where(sql.InValues(user.PurchasedColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_purchased
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_purchased" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_purchased" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

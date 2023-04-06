@@ -75,6 +75,11 @@ func ExpirationDate(v time.Time) predicate.Grocery {
 	return predicate.Grocery(sql.FieldEQ(FieldExpirationDate, v))
 }
 
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldCreatedAt, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Grocery {
 	return predicate.Grocery(sql.FieldEQ(FieldName, v))
@@ -260,6 +265,46 @@ func ExpirationDateLTE(v time.Time) predicate.Grocery {
 	return predicate.Grocery(sql.FieldLTE(FieldExpirationDate, v))
 }
 
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNEQ(FieldCreatedAt, v))
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldNotIn(FieldCreatedAt, vs...))
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGT(FieldCreatedAt, v))
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldGTE(FieldCreatedAt, v))
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLT(FieldCreatedAt, v))
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.Grocery {
+	return predicate.Grocery(sql.FieldLTE(FieldCreatedAt, v))
+}
+
 // HasProvider applies the HasEdge predicate on the "provider" edge.
 func HasProvider() predicate.Grocery {
 	return predicate.Grocery(func(s *sql.Selector) {
@@ -278,6 +323,33 @@ func HasProviderWith(preds ...predicate.User) predicate.Grocery {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(ProviderInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, ProviderTable, ProviderColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPurchased applies the HasEdge predicate on the "purchased" edge.
+func HasPurchased() predicate.Grocery {
+	return predicate.Grocery(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPurchasedWith applies the HasEdge predicate on the "purchased" edge with a given conditions (other predicates).
+func HasPurchasedWith(preds ...predicate.Purchase) predicate.Grocery {
+	return predicate.Grocery(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PurchasedInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

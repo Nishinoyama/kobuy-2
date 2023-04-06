@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,18 +13,20 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
 // GroceryQuery is the builder for querying Grocery entities.
 type GroceryQuery struct {
 	config
-	ctx          *QueryContext
-	order        []OrderFunc
-	inters       []Interceptor
-	predicates   []predicate.Grocery
-	withProvider *UserQuery
-	withFKs      bool
+	ctx           *QueryContext
+	order         []OrderFunc
+	inters        []Interceptor
+	predicates    []predicate.Grocery
+	withProvider  *UserQuery
+	withPurchased *PurchaseQuery
+	withFKs       bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -75,6 +78,28 @@ func (gq *GroceryQuery) QueryProvider() *UserQuery {
 			sqlgraph.From(grocery.Table, grocery.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, grocery.ProviderTable, grocery.ProviderColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPurchased chains the current query on the "purchased" edge.
+func (gq *GroceryQuery) QueryPurchased() *PurchaseQuery {
+	query := (&PurchaseClient{config: gq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(grocery.Table, grocery.FieldID, selector),
+			sqlgraph.To(purchase.Table, purchase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, grocery.PurchasedTable, grocery.PurchasedColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
 		return fromU, nil
@@ -269,12 +294,13 @@ func (gq *GroceryQuery) Clone() *GroceryQuery {
 		return nil
 	}
 	return &GroceryQuery{
-		config:       gq.config,
-		ctx:          gq.ctx.Clone(),
-		order:        append([]OrderFunc{}, gq.order...),
-		inters:       append([]Interceptor{}, gq.inters...),
-		predicates:   append([]predicate.Grocery{}, gq.predicates...),
-		withProvider: gq.withProvider.Clone(),
+		config:        gq.config,
+		ctx:           gq.ctx.Clone(),
+		order:         append([]OrderFunc{}, gq.order...),
+		inters:        append([]Interceptor{}, gq.inters...),
+		predicates:    append([]predicate.Grocery{}, gq.predicates...),
+		withProvider:  gq.withProvider.Clone(),
+		withPurchased: gq.withPurchased.Clone(),
 		// clone intermediate query.
 		sql:  gq.sql.Clone(),
 		path: gq.path,
@@ -289,6 +315,17 @@ func (gq *GroceryQuery) WithProvider(opts ...func(*UserQuery)) *GroceryQuery {
 		opt(query)
 	}
 	gq.withProvider = query
+	return gq
+}
+
+// WithPurchased tells the query-builder to eager-load the nodes that are connected to
+// the "purchased" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GroceryQuery) WithPurchased(opts ...func(*PurchaseQuery)) *GroceryQuery {
+	query := (&PurchaseClient{config: gq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withPurchased = query
 	return gq
 }
 
@@ -371,8 +408,9 @@ func (gq *GroceryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Groc
 		nodes       = []*Grocery{}
 		withFKs     = gq.withFKs
 		_spec       = gq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			gq.withProvider != nil,
+			gq.withPurchased != nil,
 		}
 	)
 	if gq.withProvider != nil {
@@ -402,6 +440,13 @@ func (gq *GroceryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Groc
 	if query := gq.withProvider; query != nil {
 		if err := gq.loadProvider(ctx, query, nodes, nil,
 			func(n *Grocery, e *User) { n.Edges.Provider = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := gq.withPurchased; query != nil {
+		if err := gq.loadPurchased(ctx, query, nodes,
+			func(n *Grocery) { n.Edges.Purchased = []*Purchase{} },
+			func(n *Grocery, e *Purchase) { n.Edges.Purchased = append(n.Edges.Purchased, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -437,6 +482,37 @@ func (gq *GroceryQuery) loadProvider(ctx context.Context, query *UserQuery, node
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (gq *GroceryQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, nodes []*Grocery, init func(*Grocery), assign func(*Grocery, *Purchase)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Grocery)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Purchase(func(s *sql.Selector) {
+		s.Where(sql.InValues(grocery.PurchasedColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.grocery_purchased
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "grocery_purchased" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "grocery_purchased" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

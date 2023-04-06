@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -25,28 +26,33 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeGrocery = "Grocery"
-	TypeUser    = "User"
+	TypeGrocery  = "Grocery"
+	TypePurchase = "Purchase"
+	TypeUser     = "User"
 )
 
 // GroceryMutation represents an operation that mutates the Grocery nodes in the graph.
 type GroceryMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	name            *string
-	price           *int
-	addprice        *int
-	unit            *int
-	addunit         *int
-	expiration_date *time.Time
-	clearedFields   map[string]struct{}
-	provider        *int
-	clearedprovider bool
-	done            bool
-	oldValue        func(context.Context) (*Grocery, error)
-	predicates      []predicate.Grocery
+	op               Op
+	typ              string
+	id               *int
+	name             *string
+	price            *int
+	addprice         *int
+	unit             *int
+	addunit          *int
+	expiration_date  *time.Time
+	created_at       *time.Time
+	clearedFields    map[string]struct{}
+	provider         *int
+	clearedprovider  bool
+	purchased        map[int]struct{}
+	removedpurchased map[int]struct{}
+	clearedpurchased bool
+	done             bool
+	oldValue         func(context.Context) (*Grocery, error)
+	predicates       []predicate.Grocery
 }
 
 var _ ent.Mutation = (*GroceryMutation)(nil)
@@ -331,6 +337,42 @@ func (m *GroceryMutation) ResetExpirationDate() {
 	m.expiration_date = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *GroceryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GroceryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Grocery entity.
+// If the Grocery object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroceryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GroceryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // SetProviderID sets the "provider" edge to the User entity by id.
 func (m *GroceryMutation) SetProviderID(id int) {
 	m.provider = &id
@@ -370,6 +412,60 @@ func (m *GroceryMutation) ResetProvider() {
 	m.clearedprovider = false
 }
 
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by ids.
+func (m *GroceryMutation) AddPurchasedIDs(ids ...int) {
+	if m.purchased == nil {
+		m.purchased = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.purchased[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPurchased clears the "purchased" edge to the Purchase entity.
+func (m *GroceryMutation) ClearPurchased() {
+	m.clearedpurchased = true
+}
+
+// PurchasedCleared reports if the "purchased" edge to the Purchase entity was cleared.
+func (m *GroceryMutation) PurchasedCleared() bool {
+	return m.clearedpurchased
+}
+
+// RemovePurchasedIDs removes the "purchased" edge to the Purchase entity by IDs.
+func (m *GroceryMutation) RemovePurchasedIDs(ids ...int) {
+	if m.removedpurchased == nil {
+		m.removedpurchased = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.purchased, ids[i])
+		m.removedpurchased[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPurchased returns the removed IDs of the "purchased" edge to the Purchase entity.
+func (m *GroceryMutation) RemovedPurchasedIDs() (ids []int) {
+	for id := range m.removedpurchased {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PurchasedIDs returns the "purchased" edge IDs in the mutation.
+func (m *GroceryMutation) PurchasedIDs() (ids []int) {
+	for id := range m.purchased {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPurchased resets all changes to the "purchased" edge.
+func (m *GroceryMutation) ResetPurchased() {
+	m.purchased = nil
+	m.clearedpurchased = false
+	m.removedpurchased = nil
+}
+
 // Where appends a list predicates to the GroceryMutation builder.
 func (m *GroceryMutation) Where(ps ...predicate.Grocery) {
 	m.predicates = append(m.predicates, ps...)
@@ -404,7 +500,7 @@ func (m *GroceryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroceryMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.name != nil {
 		fields = append(fields, grocery.FieldName)
 	}
@@ -416,6 +512,9 @@ func (m *GroceryMutation) Fields() []string {
 	}
 	if m.expiration_date != nil {
 		fields = append(fields, grocery.FieldExpirationDate)
+	}
+	if m.created_at != nil {
+		fields = append(fields, grocery.FieldCreatedAt)
 	}
 	return fields
 }
@@ -433,6 +532,8 @@ func (m *GroceryMutation) Field(name string) (ent.Value, bool) {
 		return m.Unit()
 	case grocery.FieldExpirationDate:
 		return m.ExpirationDate()
+	case grocery.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -450,6 +551,8 @@ func (m *GroceryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUnit(ctx)
 	case grocery.FieldExpirationDate:
 		return m.OldExpirationDate(ctx)
+	case grocery.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Grocery field %s", name)
 }
@@ -486,6 +589,13 @@ func (m *GroceryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetExpirationDate(v)
+		return nil
+	case grocery.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Grocery field %s", name)
@@ -575,15 +685,21 @@ func (m *GroceryMutation) ResetField(name string) error {
 	case grocery.FieldExpirationDate:
 		m.ResetExpirationDate()
 		return nil
+	case grocery.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
 	}
 	return fmt.Errorf("unknown Grocery field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *GroceryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.provider != nil {
 		edges = append(edges, grocery.EdgeProvider)
+	}
+	if m.purchased != nil {
+		edges = append(edges, grocery.EdgePurchased)
 	}
 	return edges
 }
@@ -596,27 +712,47 @@ func (m *GroceryMutation) AddedIDs(name string) []ent.Value {
 		if id := m.provider; id != nil {
 			return []ent.Value{*id}
 		}
+	case grocery.EdgePurchased:
+		ids := make([]ent.Value, 0, len(m.purchased))
+		for id := range m.purchased {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *GroceryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.removedpurchased != nil {
+		edges = append(edges, grocery.EdgePurchased)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *GroceryMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case grocery.EdgePurchased:
+		ids := make([]ent.Value, 0, len(m.removedpurchased))
+		for id := range m.removedpurchased {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *GroceryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedprovider {
 		edges = append(edges, grocery.EdgeProvider)
+	}
+	if m.clearedpurchased {
+		edges = append(edges, grocery.EdgePurchased)
 	}
 	return edges
 }
@@ -627,6 +763,8 @@ func (m *GroceryMutation) EdgeCleared(name string) bool {
 	switch name {
 	case grocery.EdgeProvider:
 		return m.clearedprovider
+	case grocery.EdgePurchased:
+		return m.clearedpurchased
 	}
 	return false
 }
@@ -649,8 +787,640 @@ func (m *GroceryMutation) ResetEdge(name string) error {
 	case grocery.EdgeProvider:
 		m.ResetProvider()
 		return nil
+	case grocery.EdgePurchased:
+		m.ResetPurchased()
+		return nil
 	}
 	return fmt.Errorf("unknown Grocery edge %s", name)
+}
+
+// PurchaseMutation represents an operation that mutates the Purchase nodes in the graph.
+type PurchaseMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	price          *int
+	addprice       *int
+	amount         *int
+	addamount      *int
+	created_at     *time.Time
+	clearedFields  map[string]struct{}
+	buyer          *int
+	clearedbuyer   bool
+	grocery        *int
+	clearedgrocery bool
+	done           bool
+	oldValue       func(context.Context) (*Purchase, error)
+	predicates     []predicate.Purchase
+}
+
+var _ ent.Mutation = (*PurchaseMutation)(nil)
+
+// purchaseOption allows management of the mutation configuration using functional options.
+type purchaseOption func(*PurchaseMutation)
+
+// newPurchaseMutation creates new mutation for the Purchase entity.
+func newPurchaseMutation(c config, op Op, opts ...purchaseOption) *PurchaseMutation {
+	m := &PurchaseMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePurchase,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPurchaseID sets the ID field of the mutation.
+func withPurchaseID(id int) purchaseOption {
+	return func(m *PurchaseMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Purchase
+		)
+		m.oldValue = func(ctx context.Context) (*Purchase, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Purchase.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPurchase sets the old Purchase of the mutation.
+func withPurchase(node *Purchase) purchaseOption {
+	return func(m *PurchaseMutation) {
+		m.oldValue = func(context.Context) (*Purchase, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PurchaseMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PurchaseMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PurchaseMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PurchaseMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Purchase.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetPrice sets the "price" field.
+func (m *PurchaseMutation) SetPrice(i int) {
+	m.price = &i
+	m.addprice = nil
+}
+
+// Price returns the value of the "price" field in the mutation.
+func (m *PurchaseMutation) Price() (r int, exists bool) {
+	v := m.price
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrice returns the old "price" field's value of the Purchase entity.
+// If the Purchase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PurchaseMutation) OldPrice(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrice is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrice requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrice: %w", err)
+	}
+	return oldValue.Price, nil
+}
+
+// AddPrice adds i to the "price" field.
+func (m *PurchaseMutation) AddPrice(i int) {
+	if m.addprice != nil {
+		*m.addprice += i
+	} else {
+		m.addprice = &i
+	}
+}
+
+// AddedPrice returns the value that was added to the "price" field in this mutation.
+func (m *PurchaseMutation) AddedPrice() (r int, exists bool) {
+	v := m.addprice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPrice resets all changes to the "price" field.
+func (m *PurchaseMutation) ResetPrice() {
+	m.price = nil
+	m.addprice = nil
+}
+
+// SetAmount sets the "amount" field.
+func (m *PurchaseMutation) SetAmount(i int) {
+	m.amount = &i
+	m.addamount = nil
+}
+
+// Amount returns the value of the "amount" field in the mutation.
+func (m *PurchaseMutation) Amount() (r int, exists bool) {
+	v := m.amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAmount returns the old "amount" field's value of the Purchase entity.
+// If the Purchase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PurchaseMutation) OldAmount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAmount: %w", err)
+	}
+	return oldValue.Amount, nil
+}
+
+// AddAmount adds i to the "amount" field.
+func (m *PurchaseMutation) AddAmount(i int) {
+	if m.addamount != nil {
+		*m.addamount += i
+	} else {
+		m.addamount = &i
+	}
+}
+
+// AddedAmount returns the value that was added to the "amount" field in this mutation.
+func (m *PurchaseMutation) AddedAmount() (r int, exists bool) {
+	v := m.addamount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAmount resets all changes to the "amount" field.
+func (m *PurchaseMutation) ResetAmount() {
+	m.amount = nil
+	m.addamount = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PurchaseMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PurchaseMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Purchase entity.
+// If the Purchase object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PurchaseMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PurchaseMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetBuyerID sets the "buyer" edge to the User entity by id.
+func (m *PurchaseMutation) SetBuyerID(id int) {
+	m.buyer = &id
+}
+
+// ClearBuyer clears the "buyer" edge to the User entity.
+func (m *PurchaseMutation) ClearBuyer() {
+	m.clearedbuyer = true
+}
+
+// BuyerCleared reports if the "buyer" edge to the User entity was cleared.
+func (m *PurchaseMutation) BuyerCleared() bool {
+	return m.clearedbuyer
+}
+
+// BuyerID returns the "buyer" edge ID in the mutation.
+func (m *PurchaseMutation) BuyerID() (id int, exists bool) {
+	if m.buyer != nil {
+		return *m.buyer, true
+	}
+	return
+}
+
+// BuyerIDs returns the "buyer" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BuyerID instead. It exists only for internal usage by the builders.
+func (m *PurchaseMutation) BuyerIDs() (ids []int) {
+	if id := m.buyer; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBuyer resets all changes to the "buyer" edge.
+func (m *PurchaseMutation) ResetBuyer() {
+	m.buyer = nil
+	m.clearedbuyer = false
+}
+
+// SetGroceryID sets the "grocery" edge to the Grocery entity by id.
+func (m *PurchaseMutation) SetGroceryID(id int) {
+	m.grocery = &id
+}
+
+// ClearGrocery clears the "grocery" edge to the Grocery entity.
+func (m *PurchaseMutation) ClearGrocery() {
+	m.clearedgrocery = true
+}
+
+// GroceryCleared reports if the "grocery" edge to the Grocery entity was cleared.
+func (m *PurchaseMutation) GroceryCleared() bool {
+	return m.clearedgrocery
+}
+
+// GroceryID returns the "grocery" edge ID in the mutation.
+func (m *PurchaseMutation) GroceryID() (id int, exists bool) {
+	if m.grocery != nil {
+		return *m.grocery, true
+	}
+	return
+}
+
+// GroceryIDs returns the "grocery" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GroceryID instead. It exists only for internal usage by the builders.
+func (m *PurchaseMutation) GroceryIDs() (ids []int) {
+	if id := m.grocery; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGrocery resets all changes to the "grocery" edge.
+func (m *PurchaseMutation) ResetGrocery() {
+	m.grocery = nil
+	m.clearedgrocery = false
+}
+
+// Where appends a list predicates to the PurchaseMutation builder.
+func (m *PurchaseMutation) Where(ps ...predicate.Purchase) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PurchaseMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PurchaseMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Purchase, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PurchaseMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PurchaseMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Purchase).
+func (m *PurchaseMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PurchaseMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.price != nil {
+		fields = append(fields, purchase.FieldPrice)
+	}
+	if m.amount != nil {
+		fields = append(fields, purchase.FieldAmount)
+	}
+	if m.created_at != nil {
+		fields = append(fields, purchase.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PurchaseMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case purchase.FieldPrice:
+		return m.Price()
+	case purchase.FieldAmount:
+		return m.Amount()
+	case purchase.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PurchaseMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case purchase.FieldPrice:
+		return m.OldPrice(ctx)
+	case purchase.FieldAmount:
+		return m.OldAmount(ctx)
+	case purchase.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Purchase field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PurchaseMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case purchase.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrice(v)
+		return nil
+	case purchase.FieldAmount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAmount(v)
+		return nil
+	case purchase.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Purchase field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PurchaseMutation) AddedFields() []string {
+	var fields []string
+	if m.addprice != nil {
+		fields = append(fields, purchase.FieldPrice)
+	}
+	if m.addamount != nil {
+		fields = append(fields, purchase.FieldAmount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PurchaseMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case purchase.FieldPrice:
+		return m.AddedPrice()
+	case purchase.FieldAmount:
+		return m.AddedAmount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PurchaseMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case purchase.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrice(v)
+		return nil
+	case purchase.FieldAmount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAmount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Purchase numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PurchaseMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PurchaseMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PurchaseMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Purchase nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PurchaseMutation) ResetField(name string) error {
+	switch name {
+	case purchase.FieldPrice:
+		m.ResetPrice()
+		return nil
+	case purchase.FieldAmount:
+		m.ResetAmount()
+		return nil
+	case purchase.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Purchase field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PurchaseMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.buyer != nil {
+		edges = append(edges, purchase.EdgeBuyer)
+	}
+	if m.grocery != nil {
+		edges = append(edges, purchase.EdgeGrocery)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PurchaseMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case purchase.EdgeBuyer:
+		if id := m.buyer; id != nil {
+			return []ent.Value{*id}
+		}
+	case purchase.EdgeGrocery:
+		if id := m.grocery; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PurchaseMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PurchaseMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PurchaseMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedbuyer {
+		edges = append(edges, purchase.EdgeBuyer)
+	}
+	if m.clearedgrocery {
+		edges = append(edges, purchase.EdgeGrocery)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PurchaseMutation) EdgeCleared(name string) bool {
+	switch name {
+	case purchase.EdgeBuyer:
+		return m.clearedbuyer
+	case purchase.EdgeGrocery:
+		return m.clearedgrocery
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PurchaseMutation) ClearEdge(name string) error {
+	switch name {
+	case purchase.EdgeBuyer:
+		m.ClearBuyer()
+		return nil
+	case purchase.EdgeGrocery:
+		m.ClearGrocery()
+		return nil
+	}
+	return fmt.Errorf("unknown Purchase unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PurchaseMutation) ResetEdge(name string) error {
+	switch name {
+	case purchase.EdgeBuyer:
+		m.ResetBuyer()
+		return nil
+	case purchase.EdgeGrocery:
+		m.ResetGrocery()
+		return nil
+	}
+	return fmt.Errorf("unknown Purchase edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
@@ -664,6 +1434,9 @@ type UserMutation struct {
 	provided_groceries        map[int]struct{}
 	removedprovided_groceries map[int]struct{}
 	clearedprovided_groceries bool
+	purchased                 map[int]struct{}
+	removedpurchased          map[int]struct{}
+	clearedpurchased          bool
 	done                      bool
 	oldValue                  func(context.Context) (*User, error)
 	predicates                []predicate.User
@@ -857,6 +1630,60 @@ func (m *UserMutation) ResetProvidedGroceries() {
 	m.removedprovided_groceries = nil
 }
 
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by ids.
+func (m *UserMutation) AddPurchasedIDs(ids ...int) {
+	if m.purchased == nil {
+		m.purchased = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.purchased[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPurchased clears the "purchased" edge to the Purchase entity.
+func (m *UserMutation) ClearPurchased() {
+	m.clearedpurchased = true
+}
+
+// PurchasedCleared reports if the "purchased" edge to the Purchase entity was cleared.
+func (m *UserMutation) PurchasedCleared() bool {
+	return m.clearedpurchased
+}
+
+// RemovePurchasedIDs removes the "purchased" edge to the Purchase entity by IDs.
+func (m *UserMutation) RemovePurchasedIDs(ids ...int) {
+	if m.removedpurchased == nil {
+		m.removedpurchased = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.purchased, ids[i])
+		m.removedpurchased[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPurchased returns the removed IDs of the "purchased" edge to the Purchase entity.
+func (m *UserMutation) RemovedPurchasedIDs() (ids []int) {
+	for id := range m.removedpurchased {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PurchasedIDs returns the "purchased" edge IDs in the mutation.
+func (m *UserMutation) PurchasedIDs() (ids []int) {
+	for id := range m.purchased {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPurchased resets all changes to the "purchased" edge.
+func (m *UserMutation) ResetPurchased() {
+	m.purchased = nil
+	m.clearedpurchased = false
+	m.removedpurchased = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -990,9 +1817,12 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.provided_groceries != nil {
 		edges = append(edges, user.EdgeProvidedGroceries)
+	}
+	if m.purchased != nil {
+		edges = append(edges, user.EdgePurchased)
 	}
 	return edges
 }
@@ -1007,15 +1837,24 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePurchased:
+		ids := make([]ent.Value, 0, len(m.purchased))
+		for id := range m.purchased {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedprovided_groceries != nil {
 		edges = append(edges, user.EdgeProvidedGroceries)
+	}
+	if m.removedpurchased != nil {
+		edges = append(edges, user.EdgePurchased)
 	}
 	return edges
 }
@@ -1030,15 +1869,24 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePurchased:
+		ids := make([]ent.Value, 0, len(m.removedpurchased))
+		for id := range m.removedpurchased {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedprovided_groceries {
 		edges = append(edges, user.EdgeProvidedGroceries)
+	}
+	if m.clearedpurchased {
+		edges = append(edges, user.EdgePurchased)
 	}
 	return edges
 }
@@ -1049,6 +1897,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
 	case user.EdgeProvidedGroceries:
 		return m.clearedprovided_groceries
+	case user.EdgePurchased:
+		return m.clearedpurchased
 	}
 	return false
 }
@@ -1067,6 +1917,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
 	case user.EdgeProvidedGroceries:
 		m.ResetProvidedGroceries()
+		return nil
+	case user.EdgePurchased:
+		m.ResetPurchased()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

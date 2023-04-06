@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Grocery is the client for interacting with the Grocery builders.
 	Grocery *GroceryClient
+	// Purchase is the client for interacting with the Purchase builders.
+	Purchase *PurchaseClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -148,6 +150,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Grocery = NewGroceryClient(tx.config)
+	tx.Purchase = NewPurchaseClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

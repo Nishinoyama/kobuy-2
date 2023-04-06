@@ -22,5 +22,6 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("provided_groceries", Grocery.Type),
+		edge.To("purchased", Purchase.Type),
 	}
 }

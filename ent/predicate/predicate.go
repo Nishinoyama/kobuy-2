@@ -9,5 +9,8 @@ import (
 // Grocery is the predicate function for grocery builders.
 type Grocery func(*sql.Selector)
 
+// Purchase is the predicate function for purchase builders.
+type Purchase func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

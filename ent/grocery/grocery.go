@@ -19,8 +19,12 @@ const (
 	FieldUnit = "unit"
 	// FieldExpirationDate holds the string denoting the expiration_date field in the database.
 	FieldExpirationDate = "expiration_date"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// EdgeProvider holds the string denoting the provider edge name in mutations.
 	EdgeProvider = "provider"
+	// EdgePurchased holds the string denoting the purchased edge name in mutations.
+	EdgePurchased = "purchased"
 	// Table holds the table name of the grocery in the database.
 	Table = "groceries"
 	// ProviderTable is the table that holds the provider relation/edge.
@@ -30,6 +34,13 @@ const (
 	ProviderInverseTable = "users"
 	// ProviderColumn is the table column denoting the provider relation/edge.
 	ProviderColumn = "user_provided_groceries"
+	// PurchasedTable is the table that holds the purchased relation/edge.
+	PurchasedTable = "purchases"
+	// PurchasedInverseTable is the table name for the Purchase entity.
+	// It exists in this package in order to avoid circular dependency with the "purchase" package.
+	PurchasedInverseTable = "purchases"
+	// PurchasedColumn is the table column denoting the purchased relation/edge.
+	PurchasedColumn = "grocery_purchased"
 )
 
 // Columns holds all SQL columns for grocery fields.
@@ -39,6 +50,7 @@ var Columns = []string{
 	FieldPrice,
 	FieldUnit,
 	FieldExpirationDate,
+	FieldCreatedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "groceries"
@@ -69,4 +81,6 @@ var (
 	UnitValidator func(int) error
 	// DefaultExpirationDate holds the default value on creation for the "expiration_date" field.
 	DefaultExpirationDate time.Time
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt time.Time
 )

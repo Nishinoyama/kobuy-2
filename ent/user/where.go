@@ -150,6 +150,33 @@ func HasProvidedGroceriesWith(preds ...predicate.Grocery) predicate.User {
 	})
 }
 
+// HasPurchased applies the HasEdge predicate on the "purchased" edge.
+func HasPurchased() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPurchasedWith applies the HasEdge predicate on the "purchased" edge with a given conditions (other predicates).
+func HasPurchasedWith(preds ...predicate.Purchase) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PurchasedInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(func(s *sql.Selector) {

@@ -25,6 +25,8 @@ type Grocery struct {
 	Unit int `json:"unit,omitempty"`
 	// ExpirationDate holds the value of the "expiration_date" field.
 	ExpirationDate time.Time `json:"expiration_date,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroceryQuery when eager-loading is set.
 	Edges                   GroceryEdges `json:"edges"`
@@ -35,9 +37,11 @@ type Grocery struct {
 type GroceryEdges struct {
 	// Provider holds the value of the provider edge.
 	Provider *User `json:"provider,omitempty"`
+	// Purchased holds the value of the purchased edge.
+	Purchased []*Purchase `json:"purchased,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ProviderOrErr returns the Provider value or an error if the edge
@@ -53,6 +57,15 @@ func (e GroceryEdges) ProviderOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "provider"}
 }
 
+// PurchasedOrErr returns the Purchased value or an error if the edge
+// was not loaded in eager-loading.
+func (e GroceryEdges) PurchasedOrErr() ([]*Purchase, error) {
+	if e.loadedTypes[1] {
+		return e.Purchased, nil
+	}
+	return nil, &NotLoadedError{edge: "purchased"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Grocery) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -62,7 +75,7 @@ func (*Grocery) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case grocery.FieldName:
 			values[i] = new(sql.NullString)
-		case grocery.FieldExpirationDate:
+		case grocery.FieldExpirationDate, grocery.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
 		case grocery.ForeignKeys[0]: // user_provided_groceries
 			values[i] = new(sql.NullInt64)
@@ -111,6 +124,12 @@ func (gr *Grocery) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				gr.ExpirationDate = value.Time
 			}
+		case grocery.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				gr.CreatedAt = value.Time
+			}
 		case grocery.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field user_provided_groceries", value)
@@ -126,6 +145,11 @@ func (gr *Grocery) assignValues(columns []string, values []any) error {
 // QueryProvider queries the "provider" edge of the Grocery entity.
 func (gr *Grocery) QueryProvider() *UserQuery {
 	return NewGroceryClient(gr.config).QueryProvider(gr)
+}
+
+// QueryPurchased queries the "purchased" edge of the Grocery entity.
+func (gr *Grocery) QueryPurchased() *PurchaseQuery {
+	return NewGroceryClient(gr.config).QueryPurchased(gr)
 }
 
 // Update returns a builder for updating this Grocery.
@@ -162,6 +186,9 @@ func (gr *Grocery) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("expiration_date=")
 	builder.WriteString(gr.ExpirationDate.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(gr.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

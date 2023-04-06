@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -39,6 +40,21 @@ func (uc *UserCreate) AddProvidedGroceries(g ...*Grocery) *UserCreate {
 		ids[i] = g[i].ID
 	}
 	return uc.AddProvidedGroceryIDs(ids...)
+}
+
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by IDs.
+func (uc *UserCreate) AddPurchasedIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPurchasedIDs(ids...)
+	return uc
+}
+
+// AddPurchased adds the "purchased" edges to the Purchase entity.
+func (uc *UserCreate) AddPurchased(p ...*Purchase) *UserCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPurchasedIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -117,6 +133,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(grocery.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PurchasedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PurchasedTable,
+			Columns: []string{user.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

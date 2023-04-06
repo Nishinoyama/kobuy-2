@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -25,6 +26,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Grocery is the client for interacting with the Grocery builders.
 	Grocery *GroceryClient
+	// Purchase is the client for interacting with the Purchase builders.
+	Purchase *PurchaseClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -41,6 +44,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Grocery = NewGroceryClient(c.config)
+	c.Purchase = NewPurchaseClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -122,10 +126,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Grocery: NewGroceryClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Grocery:  NewGroceryClient(cfg),
+		Purchase: NewPurchaseClient(cfg),
+		User:     NewUserClient(cfg),
 	}, nil
 }
 
@@ -143,10 +148,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Grocery: NewGroceryClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Grocery:  NewGroceryClient(cfg),
+		Purchase: NewPurchaseClient(cfg),
+		User:     NewUserClient(cfg),
 	}, nil
 }
 
@@ -176,6 +182,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Grocery.Use(hooks...)
+	c.Purchase.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -183,6 +190,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Grocery.Intercept(interceptors...)
+	c.Purchase.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -191,6 +199,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *GroceryMutation:
 		return c.Grocery.mutate(ctx, m)
+	case *PurchaseMutation:
+		return c.Purchase.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -307,6 +317,22 @@ func (c *GroceryClient) QueryProvider(gr *Grocery) *UserQuery {
 	return query
 }
 
+// QueryPurchased queries the purchased edge of a Grocery.
+func (c *GroceryClient) QueryPurchased(gr *Grocery) *PurchaseQuery {
+	query := (&PurchaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(grocery.Table, grocery.FieldID, id),
+			sqlgraph.To(purchase.Table, purchase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, grocery.PurchasedTable, grocery.PurchasedColumn),
+		)
+		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GroceryClient) Hooks() []Hook {
 	return c.hooks.Grocery
@@ -329,6 +355,156 @@ func (c *GroceryClient) mutate(ctx context.Context, m *GroceryMutation) (Value, 
 		return (&GroceryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Grocery mutation op: %q", m.Op())
+	}
+}
+
+// PurchaseClient is a client for the Purchase schema.
+type PurchaseClient struct {
+	config
+}
+
+// NewPurchaseClient returns a client for the Purchase from the given config.
+func NewPurchaseClient(c config) *PurchaseClient {
+	return &PurchaseClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `purchase.Hooks(f(g(h())))`.
+func (c *PurchaseClient) Use(hooks ...Hook) {
+	c.hooks.Purchase = append(c.hooks.Purchase, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `purchase.Intercept(f(g(h())))`.
+func (c *PurchaseClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Purchase = append(c.inters.Purchase, interceptors...)
+}
+
+// Create returns a builder for creating a Purchase entity.
+func (c *PurchaseClient) Create() *PurchaseCreate {
+	mutation := newPurchaseMutation(c.config, OpCreate)
+	return &PurchaseCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Purchase entities.
+func (c *PurchaseClient) CreateBulk(builders ...*PurchaseCreate) *PurchaseCreateBulk {
+	return &PurchaseCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Purchase.
+func (c *PurchaseClient) Update() *PurchaseUpdate {
+	mutation := newPurchaseMutation(c.config, OpUpdate)
+	return &PurchaseUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PurchaseClient) UpdateOne(pu *Purchase) *PurchaseUpdateOne {
+	mutation := newPurchaseMutation(c.config, OpUpdateOne, withPurchase(pu))
+	return &PurchaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PurchaseClient) UpdateOneID(id int) *PurchaseUpdateOne {
+	mutation := newPurchaseMutation(c.config, OpUpdateOne, withPurchaseID(id))
+	return &PurchaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Purchase.
+func (c *PurchaseClient) Delete() *PurchaseDelete {
+	mutation := newPurchaseMutation(c.config, OpDelete)
+	return &PurchaseDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PurchaseClient) DeleteOne(pu *Purchase) *PurchaseDeleteOne {
+	return c.DeleteOneID(pu.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PurchaseClient) DeleteOneID(id int) *PurchaseDeleteOne {
+	builder := c.Delete().Where(purchase.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PurchaseDeleteOne{builder}
+}
+
+// Query returns a query builder for Purchase.
+func (c *PurchaseClient) Query() *PurchaseQuery {
+	return &PurchaseQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePurchase},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Purchase entity by its id.
+func (c *PurchaseClient) Get(ctx context.Context, id int) (*Purchase, error) {
+	return c.Query().Where(purchase.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PurchaseClient) GetX(ctx context.Context, id int) *Purchase {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBuyer queries the buyer edge of a Purchase.
+func (c *PurchaseClient) QueryBuyer(pu *Purchase) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(purchase.Table, purchase.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, purchase.BuyerTable, purchase.BuyerColumn),
+		)
+		fromV = sqlgraph.Neighbors(pu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGrocery queries the grocery edge of a Purchase.
+func (c *PurchaseClient) QueryGrocery(pu *Purchase) *GroceryQuery {
+	query := (&GroceryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pu.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(purchase.Table, purchase.FieldID, id),
+			sqlgraph.To(grocery.Table, grocery.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, purchase.GroceryTable, purchase.GroceryColumn),
+		)
+		fromV = sqlgraph.Neighbors(pu.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PurchaseClient) Hooks() []Hook {
+	return c.hooks.Purchase
+}
+
+// Interceptors returns the client interceptors.
+func (c *PurchaseClient) Interceptors() []Interceptor {
+	return c.inters.Purchase
+}
+
+func (c *PurchaseClient) mutate(ctx context.Context, m *PurchaseMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PurchaseCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PurchaseUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PurchaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PurchaseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Purchase mutation op: %q", m.Op())
 	}
 }
 
@@ -441,6 +617,22 @@ func (c *UserClient) QueryProvidedGroceries(u *User) *GroceryQuery {
 	return query
 }
 
+// QueryPurchased queries the purchased edge of a User.
+func (c *UserClient) QueryPurchased(u *User) *PurchaseQuery {
+	query := (&PurchaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(purchase.Table, purchase.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PurchasedTable, user.PurchasedColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -469,9 +661,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Grocery, User []ent.Hook
+		Grocery, Purchase, User []ent.Hook
 	}
 	inters struct {
-		Grocery, User []ent.Interceptor
+		Grocery, Purchase, User []ent.Interceptor
 	}
 )

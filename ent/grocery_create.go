@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -53,6 +54,20 @@ func (gc *GroceryCreate) SetNillableExpirationDate(t *time.Time) *GroceryCreate 
 	return gc
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (gc *GroceryCreate) SetCreatedAt(t time.Time) *GroceryCreate {
+	gc.mutation.SetCreatedAt(t)
+	return gc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (gc *GroceryCreate) SetNillableCreatedAt(t *time.Time) *GroceryCreate {
+	if t != nil {
+		gc.SetCreatedAt(*t)
+	}
+	return gc
+}
+
 // SetProviderID sets the "provider" edge to the User entity by ID.
 func (gc *GroceryCreate) SetProviderID(id int) *GroceryCreate {
 	gc.mutation.SetProviderID(id)
@@ -70,6 +85,21 @@ func (gc *GroceryCreate) SetNillableProviderID(id *int) *GroceryCreate {
 // SetProvider sets the "provider" edge to the User entity.
 func (gc *GroceryCreate) SetProvider(u *User) *GroceryCreate {
 	return gc.SetProviderID(u.ID)
+}
+
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by IDs.
+func (gc *GroceryCreate) AddPurchasedIDs(ids ...int) *GroceryCreate {
+	gc.mutation.AddPurchasedIDs(ids...)
+	return gc
+}
+
+// AddPurchased adds the "purchased" edges to the Purchase entity.
+func (gc *GroceryCreate) AddPurchased(p ...*Purchase) *GroceryCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gc.AddPurchasedIDs(ids...)
 }
 
 // Mutation returns the GroceryMutation object of the builder.
@@ -111,6 +141,10 @@ func (gc *GroceryCreate) defaults() {
 		v := grocery.DefaultExpirationDate
 		gc.mutation.SetExpirationDate(v)
 	}
+	if _, ok := gc.mutation.CreatedAt(); !ok {
+		v := grocery.DefaultCreatedAt
+		gc.mutation.SetCreatedAt(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -136,6 +170,9 @@ func (gc *GroceryCreate) check() error {
 	}
 	if _, ok := gc.mutation.ExpirationDate(); !ok {
 		return &ValidationError{Name: "expiration_date", err: errors.New(`ent: missing required field "Grocery.expiration_date"`)}
+	}
+	if _, ok := gc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Grocery.created_at"`)}
 	}
 	return nil
 }
@@ -179,6 +216,10 @@ func (gc *GroceryCreate) createSpec() (*Grocery, *sqlgraph.CreateSpec) {
 		_spec.SetField(grocery.FieldExpirationDate, field.TypeTime, value)
 		_node.ExpirationDate = value
 	}
+	if value, ok := gc.mutation.CreatedAt(); ok {
+		_spec.SetField(grocery.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
 	if nodes := gc.mutation.ProviderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -194,6 +235,22 @@ func (gc *GroceryCreate) createSpec() (*Grocery, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.user_provided_groceries = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := gc.mutation.PurchasedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

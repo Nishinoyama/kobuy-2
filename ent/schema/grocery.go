@@ -19,6 +19,7 @@ func (Grocery) Fields() []ent.Field {
 		field.Int("price").NonNegative(),
 		field.Int("unit").NonNegative(),
 		field.Time("expiration_date").Default(time.Now().Add(time.Hour * 24 * 365)), // almost a year
+		field.Time("created_at").Default(time.Now()).Immutable(),
 	}
 }
 
@@ -26,5 +27,6 @@ func (Grocery) Fields() []ent.Field {
 func (Grocery) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("provider", User.Type).Ref("provided_groceries").Unique(),
+		edge.To("purchased", Purchase.Type),
 	}
 }

@@ -26,9 +26,11 @@ type User struct {
 type UserEdges struct {
 	// ProvidedGroceries holds the value of the provided_groceries edge.
 	ProvidedGroceries []*Grocery `json:"provided_groceries,omitempty"`
+	// Purchased holds the value of the purchased edge.
+	Purchased []*Purchase `json:"purchased,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // ProvidedGroceriesOrErr returns the ProvidedGroceries value or an error if the edge
@@ -38,6 +40,15 @@ func (e UserEdges) ProvidedGroceriesOrErr() ([]*Grocery, error) {
 		return e.ProvidedGroceries, nil
 	}
 	return nil, &NotLoadedError{edge: "provided_groceries"}
+}
+
+// PurchasedOrErr returns the Purchased value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PurchasedOrErr() ([]*Purchase, error) {
+	if e.loadedTypes[1] {
+		return e.Purchased, nil
+	}
+	return nil, &NotLoadedError{edge: "purchased"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -84,6 +95,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // QueryProvidedGroceries queries the "provided_groceries" edge of the User entity.
 func (u *User) QueryProvidedGroceries() *GroceryQuery {
 	return NewUserClient(u.config).QueryProvidedGroceries(u)
+}
+
+// QueryPurchased queries the "purchased" edge of the User entity.
+func (u *User) QueryPurchased() *PurchaseQuery {
+	return NewUserClient(u.config).QueryPurchased(u)
 }
 
 // Update returns a builder for updating this User.

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
+	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
@@ -94,6 +95,21 @@ func (gu *GroceryUpdate) SetProvider(u *User) *GroceryUpdate {
 	return gu.SetProviderID(u.ID)
 }
 
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by IDs.
+func (gu *GroceryUpdate) AddPurchasedIDs(ids ...int) *GroceryUpdate {
+	gu.mutation.AddPurchasedIDs(ids...)
+	return gu
+}
+
+// AddPurchased adds the "purchased" edges to the Purchase entity.
+func (gu *GroceryUpdate) AddPurchased(p ...*Purchase) *GroceryUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gu.AddPurchasedIDs(ids...)
+}
+
 // Mutation returns the GroceryMutation object of the builder.
 func (gu *GroceryUpdate) Mutation() *GroceryMutation {
 	return gu.mutation
@@ -103,6 +119,27 @@ func (gu *GroceryUpdate) Mutation() *GroceryMutation {
 func (gu *GroceryUpdate) ClearProvider() *GroceryUpdate {
 	gu.mutation.ClearProvider()
 	return gu
+}
+
+// ClearPurchased clears all "purchased" edges to the Purchase entity.
+func (gu *GroceryUpdate) ClearPurchased() *GroceryUpdate {
+	gu.mutation.ClearPurchased()
+	return gu
+}
+
+// RemovePurchasedIDs removes the "purchased" edge to Purchase entities by IDs.
+func (gu *GroceryUpdate) RemovePurchasedIDs(ids ...int) *GroceryUpdate {
+	gu.mutation.RemovePurchasedIDs(ids...)
+	return gu
+}
+
+// RemovePurchased removes "purchased" edges to Purchase entities.
+func (gu *GroceryUpdate) RemovePurchased(p ...*Purchase) *GroceryUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gu.RemovePurchasedIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -206,6 +243,51 @@ func (gu *GroceryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if gu.mutation.PurchasedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RemovedPurchasedIDs(); len(nodes) > 0 && !gu.mutation.PurchasedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.PurchasedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{grocery.Label}
@@ -291,6 +373,21 @@ func (guo *GroceryUpdateOne) SetProvider(u *User) *GroceryUpdateOne {
 	return guo.SetProviderID(u.ID)
 }
 
+// AddPurchasedIDs adds the "purchased" edge to the Purchase entity by IDs.
+func (guo *GroceryUpdateOne) AddPurchasedIDs(ids ...int) *GroceryUpdateOne {
+	guo.mutation.AddPurchasedIDs(ids...)
+	return guo
+}
+
+// AddPurchased adds the "purchased" edges to the Purchase entity.
+func (guo *GroceryUpdateOne) AddPurchased(p ...*Purchase) *GroceryUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return guo.AddPurchasedIDs(ids...)
+}
+
 // Mutation returns the GroceryMutation object of the builder.
 func (guo *GroceryUpdateOne) Mutation() *GroceryMutation {
 	return guo.mutation
@@ -300,6 +397,27 @@ func (guo *GroceryUpdateOne) Mutation() *GroceryMutation {
 func (guo *GroceryUpdateOne) ClearProvider() *GroceryUpdateOne {
 	guo.mutation.ClearProvider()
 	return guo
+}
+
+// ClearPurchased clears all "purchased" edges to the Purchase entity.
+func (guo *GroceryUpdateOne) ClearPurchased() *GroceryUpdateOne {
+	guo.mutation.ClearPurchased()
+	return guo
+}
+
+// RemovePurchasedIDs removes the "purchased" edge to Purchase entities by IDs.
+func (guo *GroceryUpdateOne) RemovePurchasedIDs(ids ...int) *GroceryUpdateOne {
+	guo.mutation.RemovePurchasedIDs(ids...)
+	return guo
+}
+
+// RemovePurchased removes "purchased" edges to Purchase entities.
+func (guo *GroceryUpdateOne) RemovePurchased(p ...*Purchase) *GroceryUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return guo.RemovePurchasedIDs(ids...)
 }
 
 // Where appends a list predicates to the GroceryUpdate builder.
@@ -426,6 +544,51 @@ func (guo *GroceryUpdateOne) sqlSave(ctx context.Context) (_node *Grocery, err e
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if guo.mutation.PurchasedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RemovedPurchasedIDs(); len(nodes) > 0 && !guo.mutation.PurchasedCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.PurchasedIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   grocery.PurchasedTable,
+			Columns: []string{grocery.PurchasedColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
