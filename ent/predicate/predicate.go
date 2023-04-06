@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// BalanceLog is the predicate function for balancelog builders.
+type BalanceLog func(*sql.Selector)
+
 // Grocery is the predicate function for grocery builders.
 type Grocery func(*sql.Selector)
 

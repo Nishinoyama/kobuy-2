@@ -9,6 +9,18 @@ import (
 	"github.com/nishinoyama/kobuy-2/ent"
 )
 
+// The BalanceLogFunc type is an adapter to allow the use of ordinary
+// function as BalanceLog mutator.
+type BalanceLogFunc func(context.Context, *ent.BalanceLogMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BalanceLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BalanceLogMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BalanceLogMutation", m)
+}
+
 // The GroceryFunc type is an adapter to allow the use of ordinary
 // function as Grocery mutator.
 type GroceryFunc func(context.Context, *ent.GroceryMutation) (ent.Value, error)

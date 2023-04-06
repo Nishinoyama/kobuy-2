@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
@@ -26,10 +27,553 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeGrocery  = "Grocery"
-	TypePurchase = "Purchase"
-	TypeUser     = "User"
+	TypeBalanceLog = "BalanceLog"
+	TypeGrocery    = "Grocery"
+	TypePurchase   = "Purchase"
+	TypeUser       = "User"
 )
+
+// BalanceLogMutation represents an operation that mutates the BalanceLog nodes in the graph.
+type BalanceLogMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	price           *int
+	addprice        *int
+	_type           *balancelog.Type
+	clearedFields   map[string]struct{}
+	donor           *int
+	cleareddonor    bool
+	receiver        *int
+	clearedreceiver bool
+	done            bool
+	oldValue        func(context.Context) (*BalanceLog, error)
+	predicates      []predicate.BalanceLog
+}
+
+var _ ent.Mutation = (*BalanceLogMutation)(nil)
+
+// balancelogOption allows management of the mutation configuration using functional options.
+type balancelogOption func(*BalanceLogMutation)
+
+// newBalanceLogMutation creates new mutation for the BalanceLog entity.
+func newBalanceLogMutation(c config, op Op, opts ...balancelogOption) *BalanceLogMutation {
+	m := &BalanceLogMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBalanceLog,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBalanceLogID sets the ID field of the mutation.
+func withBalanceLogID(id int) balancelogOption {
+	return func(m *BalanceLogMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *BalanceLog
+		)
+		m.oldValue = func(ctx context.Context) (*BalanceLog, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().BalanceLog.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBalanceLog sets the old BalanceLog of the mutation.
+func withBalanceLog(node *BalanceLog) balancelogOption {
+	return func(m *BalanceLogMutation) {
+		m.oldValue = func(context.Context) (*BalanceLog, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BalanceLogMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BalanceLogMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BalanceLogMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BalanceLogMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().BalanceLog.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetPrice sets the "price" field.
+func (m *BalanceLogMutation) SetPrice(i int) {
+	m.price = &i
+	m.addprice = nil
+}
+
+// Price returns the value of the "price" field in the mutation.
+func (m *BalanceLogMutation) Price() (r int, exists bool) {
+	v := m.price
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPrice returns the old "price" field's value of the BalanceLog entity.
+// If the BalanceLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BalanceLogMutation) OldPrice(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPrice is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPrice requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPrice: %w", err)
+	}
+	return oldValue.Price, nil
+}
+
+// AddPrice adds i to the "price" field.
+func (m *BalanceLogMutation) AddPrice(i int) {
+	if m.addprice != nil {
+		*m.addprice += i
+	} else {
+		m.addprice = &i
+	}
+}
+
+// AddedPrice returns the value that was added to the "price" field in this mutation.
+func (m *BalanceLogMutation) AddedPrice() (r int, exists bool) {
+	v := m.addprice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPrice resets all changes to the "price" field.
+func (m *BalanceLogMutation) ResetPrice() {
+	m.price = nil
+	m.addprice = nil
+}
+
+// SetType sets the "type" field.
+func (m *BalanceLogMutation) SetType(b balancelog.Type) {
+	m._type = &b
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *BalanceLogMutation) GetType() (r balancelog.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the BalanceLog entity.
+// If the BalanceLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BalanceLogMutation) OldType(ctx context.Context) (v balancelog.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *BalanceLogMutation) ResetType() {
+	m._type = nil
+}
+
+// SetDonorID sets the "donor" edge to the User entity by id.
+func (m *BalanceLogMutation) SetDonorID(id int) {
+	m.donor = &id
+}
+
+// ClearDonor clears the "donor" edge to the User entity.
+func (m *BalanceLogMutation) ClearDonor() {
+	m.cleareddonor = true
+}
+
+// DonorCleared reports if the "donor" edge to the User entity was cleared.
+func (m *BalanceLogMutation) DonorCleared() bool {
+	return m.cleareddonor
+}
+
+// DonorID returns the "donor" edge ID in the mutation.
+func (m *BalanceLogMutation) DonorID() (id int, exists bool) {
+	if m.donor != nil {
+		return *m.donor, true
+	}
+	return
+}
+
+// DonorIDs returns the "donor" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DonorID instead. It exists only for internal usage by the builders.
+func (m *BalanceLogMutation) DonorIDs() (ids []int) {
+	if id := m.donor; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDonor resets all changes to the "donor" edge.
+func (m *BalanceLogMutation) ResetDonor() {
+	m.donor = nil
+	m.cleareddonor = false
+}
+
+// SetReceiverID sets the "receiver" edge to the User entity by id.
+func (m *BalanceLogMutation) SetReceiverID(id int) {
+	m.receiver = &id
+}
+
+// ClearReceiver clears the "receiver" edge to the User entity.
+func (m *BalanceLogMutation) ClearReceiver() {
+	m.clearedreceiver = true
+}
+
+// ReceiverCleared reports if the "receiver" edge to the User entity was cleared.
+func (m *BalanceLogMutation) ReceiverCleared() bool {
+	return m.clearedreceiver
+}
+
+// ReceiverID returns the "receiver" edge ID in the mutation.
+func (m *BalanceLogMutation) ReceiverID() (id int, exists bool) {
+	if m.receiver != nil {
+		return *m.receiver, true
+	}
+	return
+}
+
+// ReceiverIDs returns the "receiver" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ReceiverID instead. It exists only for internal usage by the builders.
+func (m *BalanceLogMutation) ReceiverIDs() (ids []int) {
+	if id := m.receiver; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetReceiver resets all changes to the "receiver" edge.
+func (m *BalanceLogMutation) ResetReceiver() {
+	m.receiver = nil
+	m.clearedreceiver = false
+}
+
+// Where appends a list predicates to the BalanceLogMutation builder.
+func (m *BalanceLogMutation) Where(ps ...predicate.BalanceLog) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BalanceLogMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BalanceLogMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.BalanceLog, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BalanceLogMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BalanceLogMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (BalanceLog).
+func (m *BalanceLogMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BalanceLogMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.price != nil {
+		fields = append(fields, balancelog.FieldPrice)
+	}
+	if m._type != nil {
+		fields = append(fields, balancelog.FieldType)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BalanceLogMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case balancelog.FieldPrice:
+		return m.Price()
+	case balancelog.FieldType:
+		return m.GetType()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BalanceLogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case balancelog.FieldPrice:
+		return m.OldPrice(ctx)
+	case balancelog.FieldType:
+		return m.OldType(ctx)
+	}
+	return nil, fmt.Errorf("unknown BalanceLog field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BalanceLogMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case balancelog.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPrice(v)
+		return nil
+	case balancelog.FieldType:
+		v, ok := value.(balancelog.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BalanceLog field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BalanceLogMutation) AddedFields() []string {
+	var fields []string
+	if m.addprice != nil {
+		fields = append(fields, balancelog.FieldPrice)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BalanceLogMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case balancelog.FieldPrice:
+		return m.AddedPrice()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BalanceLogMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case balancelog.FieldPrice:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPrice(v)
+		return nil
+	}
+	return fmt.Errorf("unknown BalanceLog numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BalanceLogMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BalanceLogMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BalanceLogMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown BalanceLog nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BalanceLogMutation) ResetField(name string) error {
+	switch name {
+	case balancelog.FieldPrice:
+		m.ResetPrice()
+		return nil
+	case balancelog.FieldType:
+		m.ResetType()
+		return nil
+	}
+	return fmt.Errorf("unknown BalanceLog field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BalanceLogMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.donor != nil {
+		edges = append(edges, balancelog.EdgeDonor)
+	}
+	if m.receiver != nil {
+		edges = append(edges, balancelog.EdgeReceiver)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BalanceLogMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case balancelog.EdgeDonor:
+		if id := m.donor; id != nil {
+			return []ent.Value{*id}
+		}
+	case balancelog.EdgeReceiver:
+		if id := m.receiver; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BalanceLogMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BalanceLogMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BalanceLogMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.cleareddonor {
+		edges = append(edges, balancelog.EdgeDonor)
+	}
+	if m.clearedreceiver {
+		edges = append(edges, balancelog.EdgeReceiver)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BalanceLogMutation) EdgeCleared(name string) bool {
+	switch name {
+	case balancelog.EdgeDonor:
+		return m.cleareddonor
+	case balancelog.EdgeReceiver:
+		return m.clearedreceiver
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BalanceLogMutation) ClearEdge(name string) error {
+	switch name {
+	case balancelog.EdgeDonor:
+		m.ClearDonor()
+		return nil
+	case balancelog.EdgeReceiver:
+		m.ClearReceiver()
+		return nil
+	}
+	return fmt.Errorf("unknown BalanceLog unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BalanceLogMutation) ResetEdge(name string) error {
+	switch name {
+	case balancelog.EdgeDonor:
+		m.ResetDonor()
+		return nil
+	case balancelog.EdgeReceiver:
+		m.ResetReceiver()
+		return nil
+	}
+	return fmt.Errorf("unknown BalanceLog edge %s", name)
+}
 
 // GroceryMutation represents an operation that mutates the Grocery nodes in the graph.
 type GroceryMutation struct {
@@ -1430,6 +1974,8 @@ type UserMutation struct {
 	typ                       string
 	id                        *int
 	name                      *string
+	balance                   *int
+	addbalance                *int
 	clearedFields             map[string]struct{}
 	provided_groceries        map[int]struct{}
 	removedprovided_groceries map[int]struct{}
@@ -1437,6 +1983,12 @@ type UserMutation struct {
 	purchased                 map[int]struct{}
 	removedpurchased          map[int]struct{}
 	clearedpurchased          bool
+	donor                     map[int]struct{}
+	removeddonor              map[int]struct{}
+	cleareddonor              bool
+	receiver                  map[int]struct{}
+	removedreceiver           map[int]struct{}
+	clearedreceiver           bool
 	done                      bool
 	oldValue                  func(context.Context) (*User, error)
 	predicates                []predicate.User
@@ -1576,6 +2128,62 @@ func (m *UserMutation) ResetName() {
 	m.name = nil
 }
 
+// SetBalance sets the "balance" field.
+func (m *UserMutation) SetBalance(i int) {
+	m.balance = &i
+	m.addbalance = nil
+}
+
+// Balance returns the value of the "balance" field in the mutation.
+func (m *UserMutation) Balance() (r int, exists bool) {
+	v := m.balance
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBalance returns the old "balance" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldBalance(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBalance is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBalance requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBalance: %w", err)
+	}
+	return oldValue.Balance, nil
+}
+
+// AddBalance adds i to the "balance" field.
+func (m *UserMutation) AddBalance(i int) {
+	if m.addbalance != nil {
+		*m.addbalance += i
+	} else {
+		m.addbalance = &i
+	}
+}
+
+// AddedBalance returns the value that was added to the "balance" field in this mutation.
+func (m *UserMutation) AddedBalance() (r int, exists bool) {
+	v := m.addbalance
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetBalance resets all changes to the "balance" field.
+func (m *UserMutation) ResetBalance() {
+	m.balance = nil
+	m.addbalance = nil
+}
+
 // AddProvidedGroceryIDs adds the "provided_groceries" edge to the Grocery entity by ids.
 func (m *UserMutation) AddProvidedGroceryIDs(ids ...int) {
 	if m.provided_groceries == nil {
@@ -1684,6 +2292,114 @@ func (m *UserMutation) ResetPurchased() {
 	m.removedpurchased = nil
 }
 
+// AddDonorIDs adds the "donor" edge to the BalanceLog entity by ids.
+func (m *UserMutation) AddDonorIDs(ids ...int) {
+	if m.donor == nil {
+		m.donor = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.donor[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDonor clears the "donor" edge to the BalanceLog entity.
+func (m *UserMutation) ClearDonor() {
+	m.cleareddonor = true
+}
+
+// DonorCleared reports if the "donor" edge to the BalanceLog entity was cleared.
+func (m *UserMutation) DonorCleared() bool {
+	return m.cleareddonor
+}
+
+// RemoveDonorIDs removes the "donor" edge to the BalanceLog entity by IDs.
+func (m *UserMutation) RemoveDonorIDs(ids ...int) {
+	if m.removeddonor == nil {
+		m.removeddonor = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.donor, ids[i])
+		m.removeddonor[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDonor returns the removed IDs of the "donor" edge to the BalanceLog entity.
+func (m *UserMutation) RemovedDonorIDs() (ids []int) {
+	for id := range m.removeddonor {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DonorIDs returns the "donor" edge IDs in the mutation.
+func (m *UserMutation) DonorIDs() (ids []int) {
+	for id := range m.donor {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDonor resets all changes to the "donor" edge.
+func (m *UserMutation) ResetDonor() {
+	m.donor = nil
+	m.cleareddonor = false
+	m.removeddonor = nil
+}
+
+// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by ids.
+func (m *UserMutation) AddReceiverIDs(ids ...int) {
+	if m.receiver == nil {
+		m.receiver = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.receiver[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReceiver clears the "receiver" edge to the BalanceLog entity.
+func (m *UserMutation) ClearReceiver() {
+	m.clearedreceiver = true
+}
+
+// ReceiverCleared reports if the "receiver" edge to the BalanceLog entity was cleared.
+func (m *UserMutation) ReceiverCleared() bool {
+	return m.clearedreceiver
+}
+
+// RemoveReceiverIDs removes the "receiver" edge to the BalanceLog entity by IDs.
+func (m *UserMutation) RemoveReceiverIDs(ids ...int) {
+	if m.removedreceiver == nil {
+		m.removedreceiver = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.receiver, ids[i])
+		m.removedreceiver[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReceiver returns the removed IDs of the "receiver" edge to the BalanceLog entity.
+func (m *UserMutation) RemovedReceiverIDs() (ids []int) {
+	for id := range m.removedreceiver {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReceiverIDs returns the "receiver" edge IDs in the mutation.
+func (m *UserMutation) ReceiverIDs() (ids []int) {
+	for id := range m.receiver {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReceiver resets all changes to the "receiver" edge.
+func (m *UserMutation) ResetReceiver() {
+	m.receiver = nil
+	m.clearedreceiver = false
+	m.removedreceiver = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -1718,9 +2434,12 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
+	}
+	if m.balance != nil {
+		fields = append(fields, user.FieldBalance)
 	}
 	return fields
 }
@@ -1732,6 +2451,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldName:
 		return m.Name()
+	case user.FieldBalance:
+		return m.Balance()
 	}
 	return nil, false
 }
@@ -1743,6 +2464,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case user.FieldName:
 		return m.OldName(ctx)
+	case user.FieldBalance:
+		return m.OldBalance(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1759,6 +2482,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
+	case user.FieldBalance:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBalance(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -1766,13 +2496,21 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addbalance != nil {
+		fields = append(fields, user.FieldBalance)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case user.FieldBalance:
+		return m.AddedBalance()
+	}
 	return nil, false
 }
 
@@ -1781,6 +2519,13 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldBalance:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddBalance(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
 }
@@ -1811,18 +2556,27 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldName:
 		m.ResetName()
 		return nil
+	case user.FieldBalance:
+		m.ResetBalance()
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.provided_groceries != nil {
 		edges = append(edges, user.EdgeProvidedGroceries)
 	}
 	if m.purchased != nil {
 		edges = append(edges, user.EdgePurchased)
+	}
+	if m.donor != nil {
+		edges = append(edges, user.EdgeDonor)
+	}
+	if m.receiver != nil {
+		edges = append(edges, user.EdgeReceiver)
 	}
 	return edges
 }
@@ -1843,18 +2597,36 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeDonor:
+		ids := make([]ent.Value, 0, len(m.donor))
+		for id := range m.donor {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeReceiver:
+		ids := make([]ent.Value, 0, len(m.receiver))
+		for id := range m.receiver {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.removedprovided_groceries != nil {
 		edges = append(edges, user.EdgeProvidedGroceries)
 	}
 	if m.removedpurchased != nil {
 		edges = append(edges, user.EdgePurchased)
+	}
+	if m.removeddonor != nil {
+		edges = append(edges, user.EdgeDonor)
+	}
+	if m.removedreceiver != nil {
+		edges = append(edges, user.EdgeReceiver)
 	}
 	return edges
 }
@@ -1875,18 +2647,36 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeDonor:
+		ids := make([]ent.Value, 0, len(m.removeddonor))
+		for id := range m.removeddonor {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeReceiver:
+		ids := make([]ent.Value, 0, len(m.removedreceiver))
+		for id := range m.removedreceiver {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 4)
 	if m.clearedprovided_groceries {
 		edges = append(edges, user.EdgeProvidedGroceries)
 	}
 	if m.clearedpurchased {
 		edges = append(edges, user.EdgePurchased)
+	}
+	if m.cleareddonor {
+		edges = append(edges, user.EdgeDonor)
+	}
+	if m.clearedreceiver {
+		edges = append(edges, user.EdgeReceiver)
 	}
 	return edges
 }
@@ -1899,6 +2689,10 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedprovided_groceries
 	case user.EdgePurchased:
 		return m.clearedpurchased
+	case user.EdgeDonor:
+		return m.cleareddonor
+	case user.EdgeReceiver:
+		return m.clearedreceiver
 	}
 	return false
 }
@@ -1920,6 +2714,12 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgePurchased:
 		m.ResetPurchased()
+		return nil
+	case user.EdgeDonor:
+		m.ResetDonor()
+		return nil
+	case user.EdgeReceiver:
+		m.ResetReceiver()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

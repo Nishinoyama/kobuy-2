@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
@@ -32,6 +33,27 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 // SetName sets the "name" field.
 func (uu *UserUpdate) SetName(s string) *UserUpdate {
 	uu.mutation.SetName(s)
+	return uu
+}
+
+// SetBalance sets the "balance" field.
+func (uu *UserUpdate) SetBalance(i int) *UserUpdate {
+	uu.mutation.ResetBalance()
+	uu.mutation.SetBalance(i)
+	return uu
+}
+
+// SetNillableBalance sets the "balance" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableBalance(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetBalance(*i)
+	}
+	return uu
+}
+
+// AddBalance adds i to the "balance" field.
+func (uu *UserUpdate) AddBalance(i int) *UserUpdate {
+	uu.mutation.AddBalance(i)
 	return uu
 }
 
@@ -63,6 +85,36 @@ func (uu *UserUpdate) AddPurchased(p ...*Purchase) *UserUpdate {
 		ids[i] = p[i].ID
 	}
 	return uu.AddPurchasedIDs(ids...)
+}
+
+// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+func (uu *UserUpdate) AddDonorIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddDonorIDs(ids...)
+	return uu
+}
+
+// AddDonor adds the "donor" edges to the BalanceLog entity.
+func (uu *UserUpdate) AddDonor(b ...*BalanceLog) *UserUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uu.AddDonorIDs(ids...)
+}
+
+// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+func (uu *UserUpdate) AddReceiverIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddReceiverIDs(ids...)
+	return uu
+}
+
+// AddReceiver adds the "receiver" edges to the BalanceLog entity.
+func (uu *UserUpdate) AddReceiver(b ...*BalanceLog) *UserUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uu.AddReceiverIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -112,6 +164,48 @@ func (uu *UserUpdate) RemovePurchased(p ...*Purchase) *UserUpdate {
 	return uu.RemovePurchasedIDs(ids...)
 }
 
+// ClearDonor clears all "donor" edges to the BalanceLog entity.
+func (uu *UserUpdate) ClearDonor() *UserUpdate {
+	uu.mutation.ClearDonor()
+	return uu
+}
+
+// RemoveDonorIDs removes the "donor" edge to BalanceLog entities by IDs.
+func (uu *UserUpdate) RemoveDonorIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveDonorIDs(ids...)
+	return uu
+}
+
+// RemoveDonor removes "donor" edges to BalanceLog entities.
+func (uu *UserUpdate) RemoveDonor(b ...*BalanceLog) *UserUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uu.RemoveDonorIDs(ids...)
+}
+
+// ClearReceiver clears all "receiver" edges to the BalanceLog entity.
+func (uu *UserUpdate) ClearReceiver() *UserUpdate {
+	uu.mutation.ClearReceiver()
+	return uu
+}
+
+// RemoveReceiverIDs removes the "receiver" edge to BalanceLog entities by IDs.
+func (uu *UserUpdate) RemoveReceiverIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveReceiverIDs(ids...)
+	return uu
+}
+
+// RemoveReceiver removes "receiver" edges to BalanceLog entities.
+func (uu *UserUpdate) RemoveReceiver(b ...*BalanceLog) *UserUpdate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uu.RemoveReceiverIDs(ids...)
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks[int, UserMutation](ctx, uu.sqlSave, uu.mutation, uu.hooks)
@@ -150,6 +244,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Balance(); ok {
+		_spec.SetField(user.FieldBalance, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.AddedBalance(); ok {
+		_spec.AddField(user.FieldBalance, field.TypeInt, value)
 	}
 	if uu.mutation.ProvidedGroceriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -241,6 +341,96 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.DonorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedDonorIDs(); len(nodes) > 0 && !uu.mutation.DonorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.DonorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.ReceiverCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedReceiverIDs(); len(nodes) > 0 && !uu.mutation.ReceiverCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ReceiverIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -264,6 +454,27 @@ type UserUpdateOne struct {
 // SetName sets the "name" field.
 func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
 	uuo.mutation.SetName(s)
+	return uuo
+}
+
+// SetBalance sets the "balance" field.
+func (uuo *UserUpdateOne) SetBalance(i int) *UserUpdateOne {
+	uuo.mutation.ResetBalance()
+	uuo.mutation.SetBalance(i)
+	return uuo
+}
+
+// SetNillableBalance sets the "balance" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableBalance(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetBalance(*i)
+	}
+	return uuo
+}
+
+// AddBalance adds i to the "balance" field.
+func (uuo *UserUpdateOne) AddBalance(i int) *UserUpdateOne {
+	uuo.mutation.AddBalance(i)
 	return uuo
 }
 
@@ -295,6 +506,36 @@ func (uuo *UserUpdateOne) AddPurchased(p ...*Purchase) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.AddPurchasedIDs(ids...)
+}
+
+// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+func (uuo *UserUpdateOne) AddDonorIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddDonorIDs(ids...)
+	return uuo
+}
+
+// AddDonor adds the "donor" edges to the BalanceLog entity.
+func (uuo *UserUpdateOne) AddDonor(b ...*BalanceLog) *UserUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uuo.AddDonorIDs(ids...)
+}
+
+// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+func (uuo *UserUpdateOne) AddReceiverIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddReceiverIDs(ids...)
+	return uuo
+}
+
+// AddReceiver adds the "receiver" edges to the BalanceLog entity.
+func (uuo *UserUpdateOne) AddReceiver(b ...*BalanceLog) *UserUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uuo.AddReceiverIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -342,6 +583,48 @@ func (uuo *UserUpdateOne) RemovePurchased(p ...*Purchase) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.RemovePurchasedIDs(ids...)
+}
+
+// ClearDonor clears all "donor" edges to the BalanceLog entity.
+func (uuo *UserUpdateOne) ClearDonor() *UserUpdateOne {
+	uuo.mutation.ClearDonor()
+	return uuo
+}
+
+// RemoveDonorIDs removes the "donor" edge to BalanceLog entities by IDs.
+func (uuo *UserUpdateOne) RemoveDonorIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveDonorIDs(ids...)
+	return uuo
+}
+
+// RemoveDonor removes "donor" edges to BalanceLog entities.
+func (uuo *UserUpdateOne) RemoveDonor(b ...*BalanceLog) *UserUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uuo.RemoveDonorIDs(ids...)
+}
+
+// ClearReceiver clears all "receiver" edges to the BalanceLog entity.
+func (uuo *UserUpdateOne) ClearReceiver() *UserUpdateOne {
+	uuo.mutation.ClearReceiver()
+	return uuo
+}
+
+// RemoveReceiverIDs removes the "receiver" edge to BalanceLog entities by IDs.
+func (uuo *UserUpdateOne) RemoveReceiverIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveReceiverIDs(ids...)
+	return uuo
+}
+
+// RemoveReceiver removes "receiver" edges to BalanceLog entities.
+func (uuo *UserUpdateOne) RemoveReceiver(b ...*BalanceLog) *UserUpdateOne {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uuo.RemoveReceiverIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -412,6 +695,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Balance(); ok {
+		_spec.SetField(user.FieldBalance, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.AddedBalance(); ok {
+		_spec.AddField(user.FieldBalance, field.TypeInt, value)
 	}
 	if uuo.mutation.ProvidedGroceriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -496,6 +785,96 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(purchase.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.DonorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedDonorIDs(); len(nodes) > 0 && !uuo.mutation.DonorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.DonorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.ReceiverCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedReceiverIDs(); len(nodes) > 0 && !uuo.mutation.ReceiverCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ReceiverIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

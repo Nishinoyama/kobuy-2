@@ -9,10 +9,16 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldBalance holds the string denoting the balance field in the database.
+	FieldBalance = "balance"
 	// EdgeProvidedGroceries holds the string denoting the provided_groceries edge name in mutations.
 	EdgeProvidedGroceries = "provided_groceries"
 	// EdgePurchased holds the string denoting the purchased edge name in mutations.
 	EdgePurchased = "purchased"
+	// EdgeDonor holds the string denoting the donor edge name in mutations.
+	EdgeDonor = "donor"
+	// EdgeReceiver holds the string denoting the receiver edge name in mutations.
+	EdgeReceiver = "receiver"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// ProvidedGroceriesTable is the table that holds the provided_groceries relation/edge.
@@ -29,12 +35,27 @@ const (
 	PurchasedInverseTable = "purchases"
 	// PurchasedColumn is the table column denoting the purchased relation/edge.
 	PurchasedColumn = "user_purchased"
+	// DonorTable is the table that holds the donor relation/edge.
+	DonorTable = "balance_logs"
+	// DonorInverseTable is the table name for the BalanceLog entity.
+	// It exists in this package in order to avoid circular dependency with the "balancelog" package.
+	DonorInverseTable = "balance_logs"
+	// DonorColumn is the table column denoting the donor relation/edge.
+	DonorColumn = "user_donor"
+	// ReceiverTable is the table that holds the receiver relation/edge.
+	ReceiverTable = "balance_logs"
+	// ReceiverInverseTable is the table name for the BalanceLog entity.
+	// It exists in this package in order to avoid circular dependency with the "balancelog" package.
+	ReceiverInverseTable = "balance_logs"
+	// ReceiverColumn is the table column denoting the receiver relation/edge.
+	ReceiverColumn = "user_receiver"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldBalance,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -46,3 +67,8 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultBalance holds the default value on creation for the "balance" field.
+	DefaultBalance int
+)

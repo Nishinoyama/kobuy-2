@@ -58,6 +58,11 @@ func Name(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldName, v))
 }
 
+// Balance applies equality check predicate on the "balance" field. It's identical to BalanceEQ.
+func Balance(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBalance, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldName, v))
@@ -123,6 +128,46 @@ func NameContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldName, v))
 }
 
+// BalanceEQ applies the EQ predicate on the "balance" field.
+func BalanceEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBalance, v))
+}
+
+// BalanceNEQ applies the NEQ predicate on the "balance" field.
+func BalanceNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldBalance, v))
+}
+
+// BalanceIn applies the In predicate on the "balance" field.
+func BalanceIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldBalance, vs...))
+}
+
+// BalanceNotIn applies the NotIn predicate on the "balance" field.
+func BalanceNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldBalance, vs...))
+}
+
+// BalanceGT applies the GT predicate on the "balance" field.
+func BalanceGT(v int) predicate.User {
+	return predicate.User(sql.FieldGT(FieldBalance, v))
+}
+
+// BalanceGTE applies the GTE predicate on the "balance" field.
+func BalanceGTE(v int) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldBalance, v))
+}
+
+// BalanceLT applies the LT predicate on the "balance" field.
+func BalanceLT(v int) predicate.User {
+	return predicate.User(sql.FieldLT(FieldBalance, v))
+}
+
+// BalanceLTE applies the LTE predicate on the "balance" field.
+func BalanceLTE(v int) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldBalance, v))
+}
+
 // HasProvidedGroceries applies the HasEdge predicate on the "provided_groceries" edge.
 func HasProvidedGroceries() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -168,6 +213,60 @@ func HasPurchasedWith(preds ...predicate.Purchase) predicate.User {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(PurchasedInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDonor applies the HasEdge predicate on the "donor" edge.
+func HasDonor() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DonorTable, DonorColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDonorWith applies the HasEdge predicate on the "donor" edge with a given conditions (other predicates).
+func HasDonorWith(preds ...predicate.BalanceLog) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(DonorInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, DonorTable, DonorColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasReceiver applies the HasEdge predicate on the "receiver" edge.
+func HasReceiver() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReceiverTable, ReceiverColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasReceiverWith applies the HasEdge predicate on the "receiver" edge with a given conditions (other predicates).
+func HasReceiverWith(preds ...predicate.BalanceLog) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ReceiverInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReceiverTable, ReceiverColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

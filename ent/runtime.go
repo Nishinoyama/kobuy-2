@@ -8,6 +8,7 @@ import (
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/schema"
+	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -46,4 +47,10 @@ func init() {
 	purchaseDescCreatedAt := purchaseFields[2].Descriptor()
 	// purchase.DefaultCreatedAt holds the default value on creation for the created_at field.
 	purchase.DefaultCreatedAt = purchaseDescCreatedAt.Default.(time.Time)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescBalance is the schema descriptor for balance field.
+	userDescBalance := userFields[1].Descriptor()
+	// user.DefaultBalance holds the default value on creation for the balance field.
+	user.DefaultBalance = userDescBalance.Default.(int)
 }

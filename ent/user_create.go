@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
@@ -24,6 +25,20 @@ type UserCreate struct {
 // SetName sets the "name" field.
 func (uc *UserCreate) SetName(s string) *UserCreate {
 	uc.mutation.SetName(s)
+	return uc
+}
+
+// SetBalance sets the "balance" field.
+func (uc *UserCreate) SetBalance(i int) *UserCreate {
+	uc.mutation.SetBalance(i)
+	return uc
+}
+
+// SetNillableBalance sets the "balance" field if the given value is not nil.
+func (uc *UserCreate) SetNillableBalance(i *int) *UserCreate {
+	if i != nil {
+		uc.SetBalance(*i)
+	}
 	return uc
 }
 
@@ -57,6 +72,36 @@ func (uc *UserCreate) AddPurchased(p ...*Purchase) *UserCreate {
 	return uc.AddPurchasedIDs(ids...)
 }
 
+// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+func (uc *UserCreate) AddDonorIDs(ids ...int) *UserCreate {
+	uc.mutation.AddDonorIDs(ids...)
+	return uc
+}
+
+// AddDonor adds the "donor" edges to the BalanceLog entity.
+func (uc *UserCreate) AddDonor(b ...*BalanceLog) *UserCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uc.AddDonorIDs(ids...)
+}
+
+// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+func (uc *UserCreate) AddReceiverIDs(ids ...int) *UserCreate {
+	uc.mutation.AddReceiverIDs(ids...)
+	return uc
+}
+
+// AddReceiver adds the "receiver" edges to the BalanceLog entity.
+func (uc *UserCreate) AddReceiver(b ...*BalanceLog) *UserCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return uc.AddReceiverIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uc *UserCreate) Mutation() *UserMutation {
 	return uc.mutation
@@ -64,6 +109,7 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
+	uc.defaults()
 	return withHooks[*User, UserMutation](ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -89,10 +135,21 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uc *UserCreate) defaults() {
+	if _, ok := uc.mutation.Balance(); !ok {
+		v := user.DefaultBalance
+		uc.mutation.SetBalance(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
+	}
+	if _, ok := uc.mutation.Balance(); !ok {
+		return &ValidationError{Name: "balance", err: errors.New(`ent: missing required field "User.balance"`)}
 	}
 	return nil
 }
@@ -123,6 +180,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := uc.mutation.Balance(); ok {
+		_spec.SetField(user.FieldBalance, field.TypeInt, value)
+		_node.Balance = value
 	}
 	if nodes := uc.mutation.ProvidedGroceriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -156,6 +217,38 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := uc.mutation.DonorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.DonorTable,
+			Columns: []string{user.DonorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ReceiverIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ReceiverTable,
+			Columns: []string{user.ReceiverColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -173,6 +266,7 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	for i := range ucb.builders {
 		func(i int, root context.Context) {
 			builder := ucb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserMutation)
 				if !ok {

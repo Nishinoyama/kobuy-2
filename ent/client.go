@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
@@ -24,6 +25,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// BalanceLog is the client for interacting with the BalanceLog builders.
+	BalanceLog *BalanceLogClient
 	// Grocery is the client for interacting with the Grocery builders.
 	Grocery *GroceryClient
 	// Purchase is the client for interacting with the Purchase builders.
@@ -43,6 +46,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.BalanceLog = NewBalanceLogClient(c.config)
 	c.Grocery = NewGroceryClient(c.config)
 	c.Purchase = NewPurchaseClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -126,11 +130,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Grocery:  NewGroceryClient(cfg),
-		Purchase: NewPurchaseClient(cfg),
-		User:     NewUserClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		BalanceLog: NewBalanceLogClient(cfg),
+		Grocery:    NewGroceryClient(cfg),
+		Purchase:   NewPurchaseClient(cfg),
+		User:       NewUserClient(cfg),
 	}, nil
 }
 
@@ -148,18 +153,19 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Grocery:  NewGroceryClient(cfg),
-		Purchase: NewPurchaseClient(cfg),
-		User:     NewUserClient(cfg),
+		ctx:        ctx,
+		config:     cfg,
+		BalanceLog: NewBalanceLogClient(cfg),
+		Grocery:    NewGroceryClient(cfg),
+		Purchase:   NewPurchaseClient(cfg),
+		User:       NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Grocery.
+//		BalanceLog.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -181,6 +187,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.BalanceLog.Use(hooks...)
 	c.Grocery.Use(hooks...)
 	c.Purchase.Use(hooks...)
 	c.User.Use(hooks...)
@@ -189,6 +196,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.BalanceLog.Intercept(interceptors...)
 	c.Grocery.Intercept(interceptors...)
 	c.Purchase.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
@@ -197,6 +205,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *BalanceLogMutation:
+		return c.BalanceLog.mutate(ctx, m)
 	case *GroceryMutation:
 		return c.Grocery.mutate(ctx, m)
 	case *PurchaseMutation:
@@ -205,6 +215,156 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// BalanceLogClient is a client for the BalanceLog schema.
+type BalanceLogClient struct {
+	config
+}
+
+// NewBalanceLogClient returns a client for the BalanceLog from the given config.
+func NewBalanceLogClient(c config) *BalanceLogClient {
+	return &BalanceLogClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `balancelog.Hooks(f(g(h())))`.
+func (c *BalanceLogClient) Use(hooks ...Hook) {
+	c.hooks.BalanceLog = append(c.hooks.BalanceLog, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `balancelog.Intercept(f(g(h())))`.
+func (c *BalanceLogClient) Intercept(interceptors ...Interceptor) {
+	c.inters.BalanceLog = append(c.inters.BalanceLog, interceptors...)
+}
+
+// Create returns a builder for creating a BalanceLog entity.
+func (c *BalanceLogClient) Create() *BalanceLogCreate {
+	mutation := newBalanceLogMutation(c.config, OpCreate)
+	return &BalanceLogCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of BalanceLog entities.
+func (c *BalanceLogClient) CreateBulk(builders ...*BalanceLogCreate) *BalanceLogCreateBulk {
+	return &BalanceLogCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for BalanceLog.
+func (c *BalanceLogClient) Update() *BalanceLogUpdate {
+	mutation := newBalanceLogMutation(c.config, OpUpdate)
+	return &BalanceLogUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BalanceLogClient) UpdateOne(bl *BalanceLog) *BalanceLogUpdateOne {
+	mutation := newBalanceLogMutation(c.config, OpUpdateOne, withBalanceLog(bl))
+	return &BalanceLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BalanceLogClient) UpdateOneID(id int) *BalanceLogUpdateOne {
+	mutation := newBalanceLogMutation(c.config, OpUpdateOne, withBalanceLogID(id))
+	return &BalanceLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for BalanceLog.
+func (c *BalanceLogClient) Delete() *BalanceLogDelete {
+	mutation := newBalanceLogMutation(c.config, OpDelete)
+	return &BalanceLogDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BalanceLogClient) DeleteOne(bl *BalanceLog) *BalanceLogDeleteOne {
+	return c.DeleteOneID(bl.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BalanceLogClient) DeleteOneID(id int) *BalanceLogDeleteOne {
+	builder := c.Delete().Where(balancelog.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BalanceLogDeleteOne{builder}
+}
+
+// Query returns a query builder for BalanceLog.
+func (c *BalanceLogClient) Query() *BalanceLogQuery {
+	return &BalanceLogQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBalanceLog},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a BalanceLog entity by its id.
+func (c *BalanceLogClient) Get(ctx context.Context, id int) (*BalanceLog, error) {
+	return c.Query().Where(balancelog.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BalanceLogClient) GetX(ctx context.Context, id int) *BalanceLog {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryDonor queries the donor edge of a BalanceLog.
+func (c *BalanceLogClient) QueryDonor(bl *BalanceLog) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(balancelog.Table, balancelog.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, balancelog.DonorTable, balancelog.DonorColumn),
+		)
+		fromV = sqlgraph.Neighbors(bl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReceiver queries the receiver edge of a BalanceLog.
+func (c *BalanceLogClient) QueryReceiver(bl *BalanceLog) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := bl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(balancelog.Table, balancelog.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, balancelog.ReceiverTable, balancelog.ReceiverColumn),
+		)
+		fromV = sqlgraph.Neighbors(bl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BalanceLogClient) Hooks() []Hook {
+	return c.hooks.BalanceLog
+}
+
+// Interceptors returns the client interceptors.
+func (c *BalanceLogClient) Interceptors() []Interceptor {
+	return c.inters.BalanceLog
+}
+
+func (c *BalanceLogClient) mutate(ctx context.Context, m *BalanceLogMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BalanceLogCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BalanceLogUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BalanceLogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BalanceLogDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown BalanceLog mutation op: %q", m.Op())
 	}
 }
 
@@ -633,6 +793,38 @@ func (c *UserClient) QueryPurchased(u *User) *PurchaseQuery {
 	return query
 }
 
+// QueryDonor queries the donor edge of a User.
+func (c *UserClient) QueryDonor(u *User) *BalanceLogQuery {
+	query := (&BalanceLogClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DonorTable, user.DonorColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReceiver queries the receiver edge of a User.
+func (c *UserClient) QueryReceiver(u *User) *BalanceLogQuery {
+	query := (&BalanceLogClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ReceiverTable, user.ReceiverColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -661,9 +853,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Grocery, Purchase, User []ent.Hook
+		BalanceLog, Grocery, Purchase, User []ent.Hook
 	}
 	inters struct {
-		Grocery, Purchase, User []ent.Interceptor
+		BalanceLog, Grocery, Purchase, User []ent.Interceptor
 	}
 )

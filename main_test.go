@@ -8,6 +8,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -52,19 +54,56 @@ func TestMainKobuy2InMemory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		tx, err := client.Tx(ctx)
-		if err != nil {
-			t.Fatal(err)
-		}
+		{
+			buyer := client.User.GetX(ctx, 2)
+			g := client.Grocery.GetX(ctx, 1)
+			seller := client.Grocery.QueryProvider(g).OnlyX(ctx)
 
-		u := tx.User.GetX(ctx, 2)
-		g := tx.Grocery.GetX(ctx, 1)
-		tx.Purchase.Create().SetPrice(g.Price).SetAmount(1).SetBuyer(u).SetGrocery(g).ExecX(ctx)
-		tx.Grocery.UpdateOne(g).SetUnit(g.Unit - 1).ExecX(ctx)
-		if err := tx.Commit(); err != nil {
-			t.Fatal(err)
+			tx, err := client.Tx(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := tx.Purchase.Create().SetPrice(g.Price).SetAmount(1).SetBuyer(buyer).SetGrocery(g).Exec(ctx); err != nil {
+				if tx.Rollback() != nil {
+					t.Fatal("what")
+				}
+				t.Fatal(err)
+			}
+			if err := tx.Grocery.UpdateOne(g).SetUnit(g.Unit - 1).Exec(ctx); err != nil {
+				if tx.Rollback() != nil {
+					t.Fatal("what")
+				}
+				t.Fatal(err)
+			}
+			if err := tx.User.UpdateOne(buyer).SetBalance(buyer.Balance - g.Price).Exec(ctx); err != nil {
+				if tx.Rollback() != nil {
+					t.Fatal("what")
+				}
+				t.Fatal(err)
+			}
+			if err := tx.User.UpdateOne(seller).SetBalance(seller.Balance + g.Price).Exec(ctx); err != nil {
+				if tx.Rollback() != nil {
+					t.Fatal("what")
+				}
+				t.Fatal(err)
+			}
+			if err := tx.BalanceLog.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(g.Price).SetType(balancelog.TypePurchase).Exec(ctx); err != nil {
+				if tx.Rollback() != nil {
+					t.Fatal("what")
+				}
+				t.Fatal(err)
+			}
+			if err := tx.Commit(); err != nil {
+				t.Fatal(err)
+			}
 		}
-
+		{
+			buyer := client.User.GetX(ctx, 2)
+			g := client.Grocery.GetX(ctx, 1)
+			seller := client.Grocery.QueryProvider(g).OnlyX(ctx)
+			assert.Less(t, buyer.Balance, 0)
+			assert.Greater(t, seller.Balance, 0)
+		}
 	}
 
 	//// N + 1

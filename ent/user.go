@@ -17,6 +17,8 @@ type User struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Balance holds the value of the "balance" field.
+	Balance int `json:"balance,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges UserEdges `json:"edges"`
@@ -28,9 +30,13 @@ type UserEdges struct {
 	ProvidedGroceries []*Grocery `json:"provided_groceries,omitempty"`
 	// Purchased holds the value of the purchased edge.
 	Purchased []*Purchase `json:"purchased,omitempty"`
+	// Donor holds the value of the donor edge.
+	Donor []*BalanceLog `json:"donor,omitempty"`
+	// Receiver holds the value of the receiver edge.
+	Receiver []*BalanceLog `json:"receiver,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // ProvidedGroceriesOrErr returns the ProvidedGroceries value or an error if the edge
@@ -51,12 +57,30 @@ func (e UserEdges) PurchasedOrErr() ([]*Purchase, error) {
 	return nil, &NotLoadedError{edge: "purchased"}
 }
 
+// DonorOrErr returns the Donor value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) DonorOrErr() ([]*BalanceLog, error) {
+	if e.loadedTypes[2] {
+		return e.Donor, nil
+	}
+	return nil, &NotLoadedError{edge: "donor"}
+}
+
+// ReceiverOrErr returns the Receiver value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ReceiverOrErr() ([]*BalanceLog, error) {
+	if e.loadedTypes[3] {
+		return e.Receiver, nil
+	}
+	return nil, &NotLoadedError{edge: "receiver"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
+		case user.FieldID, user.FieldBalance:
 			values[i] = new(sql.NullInt64)
 		case user.FieldName:
 			values[i] = new(sql.NullString)
@@ -87,6 +111,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Name = value.String
 			}
+		case user.FieldBalance:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field balance", values[i])
+			} else if value.Valid {
+				u.Balance = int(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -100,6 +130,16 @@ func (u *User) QueryProvidedGroceries() *GroceryQuery {
 // QueryPurchased queries the "purchased" edge of the User entity.
 func (u *User) QueryPurchased() *PurchaseQuery {
 	return NewUserClient(u.config).QueryPurchased(u)
+}
+
+// QueryDonor queries the "donor" edge of the User entity.
+func (u *User) QueryDonor() *BalanceLogQuery {
+	return NewUserClient(u.config).QueryDonor(u)
+}
+
+// QueryReceiver queries the "receiver" edge of the User entity.
+func (u *User) QueryReceiver() *BalanceLogQuery {
+	return NewUserClient(u.config).QueryReceiver(u)
 }
 
 // Update returns a builder for updating this User.
@@ -127,6 +167,9 @@ func (u *User) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)
+	builder.WriteString(", ")
+	builder.WriteString("balance=")
+	builder.WriteString(fmt.Sprintf("%v", u.Balance))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
@@ -26,6 +27,8 @@ type UserQuery struct {
 	predicates            []predicate.User
 	withProvidedGroceries *GroceryQuery
 	withPurchased         *PurchaseQuery
+	withDonor             *BalanceLogQuery
+	withReceiver          *BalanceLogQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -99,6 +102,50 @@ func (uq *UserQuery) QueryPurchased() *PurchaseQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(purchase.Table, purchase.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.PurchasedTable, user.PurchasedColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDonor chains the current query on the "donor" edge.
+func (uq *UserQuery) QueryDonor() *BalanceLogQuery {
+	query := (&BalanceLogClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.DonorTable, user.DonorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryReceiver chains the current query on the "receiver" edge.
+func (uq *UserQuery) QueryReceiver() *BalanceLogQuery {
+	query := (&BalanceLogClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.ReceiverTable, user.ReceiverColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,6 +347,8 @@ func (uq *UserQuery) Clone() *UserQuery {
 		predicates:            append([]predicate.User{}, uq.predicates...),
 		withProvidedGroceries: uq.withProvidedGroceries.Clone(),
 		withPurchased:         uq.withPurchased.Clone(),
+		withDonor:             uq.withDonor.Clone(),
+		withReceiver:          uq.withReceiver.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -325,6 +374,28 @@ func (uq *UserQuery) WithPurchased(opts ...func(*PurchaseQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withPurchased = query
+	return uq
+}
+
+// WithDonor tells the query-builder to eager-load the nodes that are connected to
+// the "donor" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithDonor(opts ...func(*BalanceLogQuery)) *UserQuery {
+	query := (&BalanceLogClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withDonor = query
+	return uq
+}
+
+// WithReceiver tells the query-builder to eager-load the nodes that are connected to
+// the "receiver" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithReceiver(opts ...func(*BalanceLogQuery)) *UserQuery {
+	query := (&BalanceLogClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withReceiver = query
 	return uq
 }
 
@@ -406,9 +477,11 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			uq.withProvidedGroceries != nil,
 			uq.withPurchased != nil,
+			uq.withDonor != nil,
+			uq.withReceiver != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -440,6 +513,20 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadPurchased(ctx, query, nodes,
 			func(n *User) { n.Edges.Purchased = []*Purchase{} },
 			func(n *User, e *Purchase) { n.Edges.Purchased = append(n.Edges.Purchased, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withDonor; query != nil {
+		if err := uq.loadDonor(ctx, query, nodes,
+			func(n *User) { n.Edges.Donor = []*BalanceLog{} },
+			func(n *User, e *BalanceLog) { n.Edges.Donor = append(n.Edges.Donor, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withReceiver; query != nil {
+		if err := uq.loadReceiver(ctx, query, nodes,
+			func(n *User) { n.Edges.Receiver = []*BalanceLog{} },
+			func(n *User, e *BalanceLog) { n.Edges.Receiver = append(n.Edges.Receiver, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -503,6 +590,68 @@ func (uq *UserQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, no
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_purchased" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadDonor(ctx context.Context, query *BalanceLogQuery, nodes []*User, init func(*User), assign func(*User, *BalanceLog)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.BalanceLog(func(s *sql.Selector) {
+		s.Where(sql.InValues(user.DonorColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_donor
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_donor" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_donor" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadReceiver(ctx context.Context, query *BalanceLogQuery, nodes []*User, init func(*User), assign func(*User, *BalanceLog)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.BalanceLog(func(s *sql.Selector) {
+		s.Where(sql.InValues(user.ReceiverColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.user_receiver
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_receiver" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_receiver" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
