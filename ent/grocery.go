@@ -20,9 +20,9 @@ type Grocery struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Price holds the value of the "price" field.
-	Price int `json:"price,omitempty"`
+	Price int `json:"price"`
 	// Unit holds the value of the "unit" field.
-	Unit int `json:"unit,omitempty"`
+	Unit int `json:"unit"`
 	// ExpirationDate holds the value of the "expiration_date" field.
 	ExpirationDate time.Time `json:"expiration_date,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.

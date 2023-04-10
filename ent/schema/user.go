@@ -15,7 +15,7 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.Int("balance").Default(0),
+		field.Int("balance").Default(0).StructTag(`json:"balance"`),
 	}
 }
 

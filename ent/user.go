@@ -18,7 +18,7 @@ type User struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Balance holds the value of the "balance" field.
-	Balance int `json:"balance,omitempty"`
+	Balance int `json:"balance"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges UserEdges `json:"edges"`
