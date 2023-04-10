@@ -4,19 +4,38 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 func GetUsersHandler(userClient *ent.UserClient) func(ctx *gin.Context) {
 	return func(gc *gin.Context) {
 		cc := context.Background()
-		users, err := userClient.Query().All(cc)
+		users, err := controller.GetAllUsers(userClient, cc)
 		if err != nil {
 			gc.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 		gc.JSON(http.StatusOK, users)
+	}
+}
+
+func FindUserHandler(userClient *ent.UserClient) func(ctx *gin.Context) {
+	return func(gc *gin.Context) {
+		cc := context.Background()
+		userId, err := strconv.Atoi(gc.Param("id"))
+		if err != nil {
+			gc.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		user, err := controller.FindUser(userClient, cc, userId)
+		if err != nil {
+			gc.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		gc.JSON(http.StatusOK, user)
 	}
 }
 

@@ -43,6 +43,7 @@ func main() {
 	v1 := engine.Group("/v1/api")
 	{
 		v1.GET("/users", handler.GetUsersHandler(client.User))
+		v1.GET("/users/:id", handler.FindUserHandler(client.User))
 		v1.GET("/groceries", handler.GetGroceriesHandler(client.Grocery))
 		v1.POST("/groceries/provide", handler.ProvideGroceryHandler(client.Grocery))
 	}
