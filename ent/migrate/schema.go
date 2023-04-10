@@ -39,7 +39,7 @@ var (
 	// GroceriesColumns holds the columns for the "groceries" table.
 	GroceriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
 		{Name: "price", Type: field.TypeInt},
 		{Name: "unit", Type: field.TypeInt},
 		{Name: "expiration_date", Type: field.TypeTime},

@@ -171,6 +171,11 @@ func (gu *GroceryUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (gu *GroceryUpdate) check() error {
+	if v, ok := gu.mutation.Name(); ok {
+		if err := grocery.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Grocery.name": %w`, err)}
+		}
+	}
 	if v, ok := gu.mutation.Price(); ok {
 		if err := grocery.PriceValidator(v); err != nil {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Grocery.price": %w`, err)}
@@ -462,6 +467,11 @@ func (guo *GroceryUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (guo *GroceryUpdateOne) check() error {
+	if v, ok := guo.mutation.Name(); ok {
+		if err := grocery.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Grocery.name": %w`, err)}
+		}
+	}
 	if v, ok := guo.mutation.Price(); ok {
 		if err := grocery.PriceValidator(v); err != nil {
 			return &ValidationError{Name: "price", err: fmt.Errorf(`ent: validator failed for field "Grocery.price": %w`, err)}

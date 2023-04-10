@@ -17,6 +17,10 @@ import (
 func init() {
 	groceryFields := schema.Grocery{}.Fields()
 	_ = groceryFields
+	// groceryDescName is the schema descriptor for name field.
+	groceryDescName := groceryFields[0].Descriptor()
+	// grocery.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	grocery.NameValidator = groceryDescName.Validators[0].(func(string) error)
 	// groceryDescPrice is the schema descriptor for price field.
 	groceryDescPrice := groceryFields[1].Descriptor()
 	// grocery.PriceValidator is a validator for the "price" field. It is called by the builders before save.

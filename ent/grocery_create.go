@@ -152,6 +152,11 @@ func (gc *GroceryCreate) check() error {
 	if _, ok := gc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Grocery.name"`)}
 	}
+	if v, ok := gc.mutation.Name(); ok {
+		if err := grocery.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Grocery.name": %w`, err)}
+		}
+	}
 	if _, ok := gc.mutation.Price(); !ok {
 		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Grocery.price"`)}
 	}

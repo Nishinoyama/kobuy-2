@@ -15,7 +15,7 @@ type Grocery struct {
 // Fields of the Grocery.
 func (Grocery) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Unique(),
+		field.String("name").NotEmpty(),
 		field.Int("price").NonNegative(),
 		field.Int("unit").NonNegative(),
 		field.Time("expiration_date").Default(time.Now().Add(time.Hour * 24 * 365)), // almost a year
