@@ -7,28 +7,28 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/nishinoyama/kobuy-2/ent/balancelog"
+	"github.com/nishinoyama/kobuy-2/ent/ledger"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
 
-// BalanceLog is the model entity for the BalanceLog schema.
-type BalanceLog struct {
+// Ledger is the model entity for the Ledger schema.
+type Ledger struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// Price holds the value of the "price" field.
 	Price int `json:"price,omitempty"`
 	// Type holds the value of the "type" field.
-	Type balancelog.Type `json:"type,omitempty"`
+	Type ledger.Type `json:"type,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the BalanceLogQuery when eager-loading is set.
-	Edges         BalanceLogEdges `json:"edges"`
+	// The values are being populated by the LedgerQuery when eager-loading is set.
+	Edges         LedgerEdges `json:"edges"`
 	user_donor    *int
 	user_receiver *int
 }
 
-// BalanceLogEdges holds the relations/edges for other nodes in the graph.
-type BalanceLogEdges struct {
+// LedgerEdges holds the relations/edges for other nodes in the graph.
+type LedgerEdges struct {
 	// Donor holds the value of the donor edge.
 	Donor *User `json:"donor,omitempty"`
 	// Receiver holds the value of the receiver edge.
@@ -40,7 +40,7 @@ type BalanceLogEdges struct {
 
 // DonorOrErr returns the Donor value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e BalanceLogEdges) DonorOrErr() (*User, error) {
+func (e LedgerEdges) DonorOrErr() (*User, error) {
 	if e.loadedTypes[0] {
 		if e.Donor == nil {
 			// Edge was loaded but was not found.
@@ -53,7 +53,7 @@ func (e BalanceLogEdges) DonorOrErr() (*User, error) {
 
 // ReceiverOrErr returns the Receiver value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e BalanceLogEdges) ReceiverOrErr() (*User, error) {
+func (e LedgerEdges) ReceiverOrErr() (*User, error) {
 	if e.loadedTypes[1] {
 		if e.Receiver == nil {
 			// Edge was loaded but was not found.
@@ -65,111 +65,111 @@ func (e BalanceLogEdges) ReceiverOrErr() (*User, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*BalanceLog) scanValues(columns []string) ([]any, error) {
+func (*Ledger) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case balancelog.FieldID, balancelog.FieldPrice:
+		case ledger.FieldID, ledger.FieldPrice:
 			values[i] = new(sql.NullInt64)
-		case balancelog.FieldType:
+		case ledger.FieldType:
 			values[i] = new(sql.NullString)
-		case balancelog.ForeignKeys[0]: // user_donor
+		case ledger.ForeignKeys[0]: // user_donor
 			values[i] = new(sql.NullInt64)
-		case balancelog.ForeignKeys[1]: // user_receiver
+		case ledger.ForeignKeys[1]: // user_receiver
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type BalanceLog", columns[i])
+			return nil, fmt.Errorf("unexpected column %q for type Ledger", columns[i])
 		}
 	}
 	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the BalanceLog fields.
-func (bl *BalanceLog) assignValues(columns []string, values []any) error {
+// to the Ledger fields.
+func (l *Ledger) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case balancelog.FieldID:
+		case ledger.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			bl.ID = int(value.Int64)
-		case balancelog.FieldPrice:
+			l.ID = int(value.Int64)
+		case ledger.FieldPrice:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field price", values[i])
 			} else if value.Valid {
-				bl.Price = int(value.Int64)
+				l.Price = int(value.Int64)
 			}
-		case balancelog.FieldType:
+		case ledger.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				bl.Type = balancelog.Type(value.String)
+				l.Type = ledger.Type(value.String)
 			}
-		case balancelog.ForeignKeys[0]:
+		case ledger.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field user_donor", value)
 			} else if value.Valid {
-				bl.user_donor = new(int)
-				*bl.user_donor = int(value.Int64)
+				l.user_donor = new(int)
+				*l.user_donor = int(value.Int64)
 			}
-		case balancelog.ForeignKeys[1]:
+		case ledger.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field user_receiver", value)
 			} else if value.Valid {
-				bl.user_receiver = new(int)
-				*bl.user_receiver = int(value.Int64)
+				l.user_receiver = new(int)
+				*l.user_receiver = int(value.Int64)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryDonor queries the "donor" edge of the BalanceLog entity.
-func (bl *BalanceLog) QueryDonor() *UserQuery {
-	return NewBalanceLogClient(bl.config).QueryDonor(bl)
+// QueryDonor queries the "donor" edge of the Ledger entity.
+func (l *Ledger) QueryDonor() *UserQuery {
+	return NewLedgerClient(l.config).QueryDonor(l)
 }
 
-// QueryReceiver queries the "receiver" edge of the BalanceLog entity.
-func (bl *BalanceLog) QueryReceiver() *UserQuery {
-	return NewBalanceLogClient(bl.config).QueryReceiver(bl)
+// QueryReceiver queries the "receiver" edge of the Ledger entity.
+func (l *Ledger) QueryReceiver() *UserQuery {
+	return NewLedgerClient(l.config).QueryReceiver(l)
 }
 
-// Update returns a builder for updating this BalanceLog.
-// Note that you need to call BalanceLog.Unwrap() before calling this method if this BalanceLog
+// Update returns a builder for updating this Ledger.
+// Note that you need to call Ledger.Unwrap() before calling this method if this Ledger
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (bl *BalanceLog) Update() *BalanceLogUpdateOne {
-	return NewBalanceLogClient(bl.config).UpdateOne(bl)
+func (l *Ledger) Update() *LedgerUpdateOne {
+	return NewLedgerClient(l.config).UpdateOne(l)
 }
 
-// Unwrap unwraps the BalanceLog entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Ledger entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (bl *BalanceLog) Unwrap() *BalanceLog {
-	_tx, ok := bl.config.driver.(*txDriver)
+func (l *Ledger) Unwrap() *Ledger {
+	_tx, ok := l.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: BalanceLog is not a transactional entity")
+		panic("ent: Ledger is not a transactional entity")
 	}
-	bl.config.driver = _tx.drv
-	return bl
+	l.config.driver = _tx.drv
+	return l
 }
 
 // String implements the fmt.Stringer.
-func (bl *BalanceLog) String() string {
+func (l *Ledger) String() string {
 	var builder strings.Builder
-	builder.WriteString("BalanceLog(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", bl.ID))
+	builder.WriteString("Ledger(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", l.ID))
 	builder.WriteString("price=")
-	builder.WriteString(fmt.Sprintf("%v", bl.Price))
+	builder.WriteString(fmt.Sprintf("%v", l.Price))
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", bl.Type))
+	builder.WriteString(fmt.Sprintf("%v", l.Type))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// BalanceLogs is a parsable slice of BalanceLog.
-type BalanceLogs []*BalanceLog
+// Ledgers is a parsable slice of Ledger.
+type Ledgers []*Ledger

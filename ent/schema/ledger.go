@@ -6,21 +6,21 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// BalanceLog holds the schema definition for the BalanceLog entity.
-type BalanceLog struct {
+// Ledger holds the schema definition for the Ledger entity.
+type Ledger struct {
 	ent.Schema
 }
 
-// Fields of the BalanceLog.
-func (BalanceLog) Fields() []ent.Field {
+// Fields of the Ledger.
+func (Ledger) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("price"),
 		field.Enum("type").Values("purchase", "cash", "etc"),
 	}
 }
 
-// Edges of the BalanceLog.
-func (BalanceLog) Edges() []ent.Edge {
+// Edges of the Ledger.
+func (Ledger) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("donor", User.Type).Ref("donor").Unique(),
 		edge.From("receiver", User.Type).Ref("receiver").Unique(),

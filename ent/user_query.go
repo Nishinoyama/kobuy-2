@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/ledger"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
@@ -27,8 +27,8 @@ type UserQuery struct {
 	predicates            []predicate.User
 	withProvidedGroceries *GroceryQuery
 	withPurchased         *PurchaseQuery
-	withDonor             *BalanceLogQuery
-	withReceiver          *BalanceLogQuery
+	withDonor             *LedgerQuery
+	withReceiver          *LedgerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -110,8 +110,8 @@ func (uq *UserQuery) QueryPurchased() *PurchaseQuery {
 }
 
 // QueryDonor chains the current query on the "donor" edge.
-func (uq *UserQuery) QueryDonor() *BalanceLogQuery {
-	query := (&BalanceLogClient{config: uq.config}).Query()
+func (uq *UserQuery) QueryDonor() *LedgerQuery {
+	query := (&LedgerClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -122,7 +122,7 @@ func (uq *UserQuery) QueryDonor() *BalanceLogQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.To(ledger.Table, ledger.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.DonorTable, user.DonorColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
@@ -132,8 +132,8 @@ func (uq *UserQuery) QueryDonor() *BalanceLogQuery {
 }
 
 // QueryReceiver chains the current query on the "receiver" edge.
-func (uq *UserQuery) QueryReceiver() *BalanceLogQuery {
-	query := (&BalanceLogClient{config: uq.config}).Query()
+func (uq *UserQuery) QueryReceiver() *LedgerQuery {
+	query := (&LedgerClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -144,7 +144,7 @@ func (uq *UserQuery) QueryReceiver() *BalanceLogQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(balancelog.Table, balancelog.FieldID),
+			sqlgraph.To(ledger.Table, ledger.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ReceiverTable, user.ReceiverColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
@@ -379,8 +379,8 @@ func (uq *UserQuery) WithPurchased(opts ...func(*PurchaseQuery)) *UserQuery {
 
 // WithDonor tells the query-builder to eager-load the nodes that are connected to
 // the "donor" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithDonor(opts ...func(*BalanceLogQuery)) *UserQuery {
-	query := (&BalanceLogClient{config: uq.config}).Query()
+func (uq *UserQuery) WithDonor(opts ...func(*LedgerQuery)) *UserQuery {
+	query := (&LedgerClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -390,8 +390,8 @@ func (uq *UserQuery) WithDonor(opts ...func(*BalanceLogQuery)) *UserQuery {
 
 // WithReceiver tells the query-builder to eager-load the nodes that are connected to
 // the "receiver" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithReceiver(opts ...func(*BalanceLogQuery)) *UserQuery {
-	query := (&BalanceLogClient{config: uq.config}).Query()
+func (uq *UserQuery) WithReceiver(opts ...func(*LedgerQuery)) *UserQuery {
+	query := (&LedgerClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -518,15 +518,15 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if query := uq.withDonor; query != nil {
 		if err := uq.loadDonor(ctx, query, nodes,
-			func(n *User) { n.Edges.Donor = []*BalanceLog{} },
-			func(n *User, e *BalanceLog) { n.Edges.Donor = append(n.Edges.Donor, e) }); err != nil {
+			func(n *User) { n.Edges.Donor = []*Ledger{} },
+			func(n *User, e *Ledger) { n.Edges.Donor = append(n.Edges.Donor, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := uq.withReceiver; query != nil {
 		if err := uq.loadReceiver(ctx, query, nodes,
-			func(n *User) { n.Edges.Receiver = []*BalanceLog{} },
-			func(n *User, e *BalanceLog) { n.Edges.Receiver = append(n.Edges.Receiver, e) }); err != nil {
+			func(n *User) { n.Edges.Receiver = []*Ledger{} },
+			func(n *User, e *Ledger) { n.Edges.Receiver = append(n.Edges.Receiver, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -595,7 +595,7 @@ func (uq *UserQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, no
 	}
 	return nil
 }
-func (uq *UserQuery) loadDonor(ctx context.Context, query *BalanceLogQuery, nodes []*User, init func(*User), assign func(*User, *BalanceLog)) error {
+func (uq *UserQuery) loadDonor(ctx context.Context, query *LedgerQuery, nodes []*User, init func(*User), assign func(*User, *Ledger)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*User)
 	for i := range nodes {
@@ -606,7 +606,7 @@ func (uq *UserQuery) loadDonor(ctx context.Context, query *BalanceLogQuery, node
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.BalanceLog(func(s *sql.Selector) {
+	query.Where(predicate.Ledger(func(s *sql.Selector) {
 		s.Where(sql.InValues(user.DonorColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
@@ -626,7 +626,7 @@ func (uq *UserQuery) loadDonor(ctx context.Context, query *BalanceLogQuery, node
 	}
 	return nil
 }
-func (uq *UserQuery) loadReceiver(ctx context.Context, query *BalanceLogQuery, nodes []*User, init func(*User), assign func(*User, *BalanceLog)) error {
+func (uq *UserQuery) loadReceiver(ctx context.Context, query *LedgerQuery, nodes []*User, init func(*User), assign func(*User, *Ledger)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*User)
 	for i := range nodes {
@@ -637,7 +637,7 @@ func (uq *UserQuery) loadReceiver(ctx context.Context, query *BalanceLogQuery, n
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.BalanceLog(func(s *sql.Selector) {
+	query.Where(predicate.Ledger(func(s *sql.Selector) {
 		s.Where(sql.InValues(user.ReceiverColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)

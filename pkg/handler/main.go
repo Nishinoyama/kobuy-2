@@ -111,7 +111,7 @@ func PurchaseGroceryHandler(client *ent.Client) func(ctx *gin.Context) {
 func GetLedger(client *ent.Client) func(ctx *gin.Context) {
 	return func(gc *gin.Context) {
 		cc := context.Background()
-		ledger, err := client.BalanceLog.Query().
+		ledger, err := client.Ledger.Query().
 			WithReceiver(func(query *ent.UserQuery) {
 				query.Select(user.FieldName)
 			}).

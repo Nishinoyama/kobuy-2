@@ -9,18 +9,6 @@ import (
 	"github.com/nishinoyama/kobuy-2/ent"
 )
 
-// The BalanceLogFunc type is an adapter to allow the use of ordinary
-// function as BalanceLog mutator.
-type BalanceLogFunc func(context.Context, *ent.BalanceLogMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f BalanceLogFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.BalanceLogMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BalanceLogMutation", m)
-}
-
 // The GroceryFunc type is an adapter to allow the use of ordinary
 // function as Grocery mutator.
 type GroceryFunc func(context.Context, *ent.GroceryMutation) (ent.Value, error)
@@ -31,6 +19,18 @@ func (f GroceryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GroceryMutation", m)
+}
+
+// The LedgerFunc type is an adapter to allow the use of ordinary
+// function as Ledger mutator.
+type LedgerFunc func(context.Context, *ent.LedgerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LedgerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LedgerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LedgerMutation", m)
 }
 
 // The PurchaseFunc type is an adapter to allow the use of ordinary

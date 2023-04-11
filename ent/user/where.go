@@ -234,7 +234,7 @@ func HasDonor() predicate.User {
 }
 
 // HasDonorWith applies the HasEdge predicate on the "donor" edge with a given conditions (other predicates).
-func HasDonorWith(preds ...predicate.BalanceLog) predicate.User {
+func HasDonorWith(preds ...predicate.Ledger) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
@@ -261,7 +261,7 @@ func HasReceiver() predicate.User {
 }
 
 // HasReceiverWith applies the HasEdge predicate on the "receiver" edge with a given conditions (other predicates).
-func HasReceiverWith(preds ...predicate.BalanceLog) predicate.User {
+func HasReceiverWith(preds ...predicate.Ledger) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),

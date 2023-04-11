@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/ent/balancelog"
+	"github.com/nishinoyama/kobuy-2/ent/ledger"
 )
 
 type SomeUsersResponse struct {
@@ -79,7 +79,7 @@ func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groce
 		}
 		return err
 	}
-	if err := tx.BalanceLog.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(price).SetType(balancelog.TypePurchase).Exec(ctx); err != nil {
+	if err := tx.Ledger.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
 		if tx.Rollback() != nil {
 			return errors.New("roll back failed")
 		}

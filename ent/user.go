@@ -31,9 +31,9 @@ type UserEdges struct {
 	// Purchased holds the value of the purchased edge.
 	Purchased []*Purchase `json:"purchased,omitempty"`
 	// Donor holds the value of the donor edge.
-	Donor []*BalanceLog `json:"donor,omitempty"`
+	Donor []*Ledger `json:"donor,omitempty"`
 	// Receiver holds the value of the receiver edge.
-	Receiver []*BalanceLog `json:"receiver,omitempty"`
+	Receiver []*Ledger `json:"receiver,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -59,7 +59,7 @@ func (e UserEdges) PurchasedOrErr() ([]*Purchase, error) {
 
 // DonorOrErr returns the Donor value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) DonorOrErr() ([]*BalanceLog, error) {
+func (e UserEdges) DonorOrErr() ([]*Ledger, error) {
 	if e.loadedTypes[2] {
 		return e.Donor, nil
 	}
@@ -68,7 +68,7 @@ func (e UserEdges) DonorOrErr() ([]*BalanceLog, error) {
 
 // ReceiverOrErr returns the Receiver value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) ReceiverOrErr() ([]*BalanceLog, error) {
+func (e UserEdges) ReceiverOrErr() ([]*Ledger, error) {
 	if e.loadedTypes[3] {
 		return e.Receiver, nil
 	}
@@ -133,12 +133,12 @@ func (u *User) QueryPurchased() *PurchaseQuery {
 }
 
 // QueryDonor queries the "donor" edge of the User entity.
-func (u *User) QueryDonor() *BalanceLogQuery {
+func (u *User) QueryDonor() *LedgerQuery {
 	return NewUserClient(u.config).QueryDonor(u)
 }
 
 // QueryReceiver queries the "receiver" edge of the User entity.
-func (u *User) QueryReceiver() *BalanceLogQuery {
+func (u *User) QueryReceiver() *LedgerQuery {
 	return NewUserClient(u.config).QueryReceiver(u)
 }
 

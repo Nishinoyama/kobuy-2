@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/ledger"
 	"github.com/nishinoyama/kobuy-2/ent/predicate"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
@@ -87,32 +87,32 @@ func (uu *UserUpdate) AddPurchased(p ...*Purchase) *UserUpdate {
 	return uu.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
 func (uu *UserUpdate) AddDonorIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddDonorIDs(ids...)
 	return uu
 }
 
-// AddDonor adds the "donor" edges to the BalanceLog entity.
-func (uu *UserUpdate) AddDonor(b ...*BalanceLog) *UserUpdate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddDonor adds the "donor" edges to the Ledger entity.
+func (uu *UserUpdate) AddDonor(l ...*Ledger) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uu.AddDonorIDs(ids...)
 }
 
-// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+// AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
 func (uu *UserUpdate) AddReceiverIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddReceiverIDs(ids...)
 	return uu
 }
 
-// AddReceiver adds the "receiver" edges to the BalanceLog entity.
-func (uu *UserUpdate) AddReceiver(b ...*BalanceLog) *UserUpdate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddReceiver adds the "receiver" edges to the Ledger entity.
+func (uu *UserUpdate) AddReceiver(l ...*Ledger) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uu.AddReceiverIDs(ids...)
 }
@@ -164,44 +164,44 @@ func (uu *UserUpdate) RemovePurchased(p ...*Purchase) *UserUpdate {
 	return uu.RemovePurchasedIDs(ids...)
 }
 
-// ClearDonor clears all "donor" edges to the BalanceLog entity.
+// ClearDonor clears all "donor" edges to the Ledger entity.
 func (uu *UserUpdate) ClearDonor() *UserUpdate {
 	uu.mutation.ClearDonor()
 	return uu
 }
 
-// RemoveDonorIDs removes the "donor" edge to BalanceLog entities by IDs.
+// RemoveDonorIDs removes the "donor" edge to Ledger entities by IDs.
 func (uu *UserUpdate) RemoveDonorIDs(ids ...int) *UserUpdate {
 	uu.mutation.RemoveDonorIDs(ids...)
 	return uu
 }
 
-// RemoveDonor removes "donor" edges to BalanceLog entities.
-func (uu *UserUpdate) RemoveDonor(b ...*BalanceLog) *UserUpdate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveDonor removes "donor" edges to Ledger entities.
+func (uu *UserUpdate) RemoveDonor(l ...*Ledger) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uu.RemoveDonorIDs(ids...)
 }
 
-// ClearReceiver clears all "receiver" edges to the BalanceLog entity.
+// ClearReceiver clears all "receiver" edges to the Ledger entity.
 func (uu *UserUpdate) ClearReceiver() *UserUpdate {
 	uu.mutation.ClearReceiver()
 	return uu
 }
 
-// RemoveReceiverIDs removes the "receiver" edge to BalanceLog entities by IDs.
+// RemoveReceiverIDs removes the "receiver" edge to Ledger entities by IDs.
 func (uu *UserUpdate) RemoveReceiverIDs(ids ...int) *UserUpdate {
 	uu.mutation.RemoveReceiverIDs(ids...)
 	return uu
 }
 
-// RemoveReceiver removes "receiver" edges to BalanceLog entities.
-func (uu *UserUpdate) RemoveReceiver(b ...*BalanceLog) *UserUpdate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveReceiver removes "receiver" edges to Ledger entities.
+func (uu *UserUpdate) RemoveReceiver(l ...*Ledger) *UserUpdate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uu.RemoveReceiverIDs(ids...)
 }
@@ -349,7 +349,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -362,7 +362,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -378,7 +378,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -394,7 +394,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -407,7 +407,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -423,7 +423,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -508,32 +508,32 @@ func (uuo *UserUpdateOne) AddPurchased(p ...*Purchase) *UserUpdateOne {
 	return uuo.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
 func (uuo *UserUpdateOne) AddDonorIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddDonorIDs(ids...)
 	return uuo
 }
 
-// AddDonor adds the "donor" edges to the BalanceLog entity.
-func (uuo *UserUpdateOne) AddDonor(b ...*BalanceLog) *UserUpdateOne {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddDonor adds the "donor" edges to the Ledger entity.
+func (uuo *UserUpdateOne) AddDonor(l ...*Ledger) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uuo.AddDonorIDs(ids...)
 }
 
-// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+// AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
 func (uuo *UserUpdateOne) AddReceiverIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddReceiverIDs(ids...)
 	return uuo
 }
 
-// AddReceiver adds the "receiver" edges to the BalanceLog entity.
-func (uuo *UserUpdateOne) AddReceiver(b ...*BalanceLog) *UserUpdateOne {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddReceiver adds the "receiver" edges to the Ledger entity.
+func (uuo *UserUpdateOne) AddReceiver(l ...*Ledger) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uuo.AddReceiverIDs(ids...)
 }
@@ -585,44 +585,44 @@ func (uuo *UserUpdateOne) RemovePurchased(p ...*Purchase) *UserUpdateOne {
 	return uuo.RemovePurchasedIDs(ids...)
 }
 
-// ClearDonor clears all "donor" edges to the BalanceLog entity.
+// ClearDonor clears all "donor" edges to the Ledger entity.
 func (uuo *UserUpdateOne) ClearDonor() *UserUpdateOne {
 	uuo.mutation.ClearDonor()
 	return uuo
 }
 
-// RemoveDonorIDs removes the "donor" edge to BalanceLog entities by IDs.
+// RemoveDonorIDs removes the "donor" edge to Ledger entities by IDs.
 func (uuo *UserUpdateOne) RemoveDonorIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.RemoveDonorIDs(ids...)
 	return uuo
 }
 
-// RemoveDonor removes "donor" edges to BalanceLog entities.
-func (uuo *UserUpdateOne) RemoveDonor(b ...*BalanceLog) *UserUpdateOne {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveDonor removes "donor" edges to Ledger entities.
+func (uuo *UserUpdateOne) RemoveDonor(l ...*Ledger) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uuo.RemoveDonorIDs(ids...)
 }
 
-// ClearReceiver clears all "receiver" edges to the BalanceLog entity.
+// ClearReceiver clears all "receiver" edges to the Ledger entity.
 func (uuo *UserUpdateOne) ClearReceiver() *UserUpdateOne {
 	uuo.mutation.ClearReceiver()
 	return uuo
 }
 
-// RemoveReceiverIDs removes the "receiver" edge to BalanceLog entities by IDs.
+// RemoveReceiverIDs removes the "receiver" edge to Ledger entities by IDs.
 func (uuo *UserUpdateOne) RemoveReceiverIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.RemoveReceiverIDs(ids...)
 	return uuo
 }
 
-// RemoveReceiver removes "receiver" edges to BalanceLog entities.
-func (uuo *UserUpdateOne) RemoveReceiver(b ...*BalanceLog) *UserUpdateOne {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveReceiver removes "receiver" edges to Ledger entities.
+func (uuo *UserUpdateOne) RemoveReceiver(l ...*Ledger) *UserUpdateOne {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uuo.RemoveReceiverIDs(ids...)
 }
@@ -800,7 +800,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -813,7 +813,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -829,7 +829,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -845,7 +845,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -858,7 +858,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -874,7 +874,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

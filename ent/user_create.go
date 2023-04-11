@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 	"github.com/nishinoyama/kobuy-2/ent/grocery"
+	"github.com/nishinoyama/kobuy-2/ent/ledger"
 	"github.com/nishinoyama/kobuy-2/ent/purchase"
 	"github.com/nishinoyama/kobuy-2/ent/user"
 )
@@ -72,32 +72,32 @@ func (uc *UserCreate) AddPurchased(p ...*Purchase) *UserCreate {
 	return uc.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the BalanceLog entity by IDs.
+// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
 func (uc *UserCreate) AddDonorIDs(ids ...int) *UserCreate {
 	uc.mutation.AddDonorIDs(ids...)
 	return uc
 }
 
-// AddDonor adds the "donor" edges to the BalanceLog entity.
-func (uc *UserCreate) AddDonor(b ...*BalanceLog) *UserCreate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddDonor adds the "donor" edges to the Ledger entity.
+func (uc *UserCreate) AddDonor(l ...*Ledger) *UserCreate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uc.AddDonorIDs(ids...)
 }
 
-// AddReceiverIDs adds the "receiver" edge to the BalanceLog entity by IDs.
+// AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
 func (uc *UserCreate) AddReceiverIDs(ids ...int) *UserCreate {
 	uc.mutation.AddReceiverIDs(ids...)
 	return uc
 }
 
-// AddReceiver adds the "receiver" edges to the BalanceLog entity.
-func (uc *UserCreate) AddReceiver(b ...*BalanceLog) *UserCreate {
-	ids := make([]int, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// AddReceiver adds the "receiver" edges to the Ledger entity.
+func (uc *UserCreate) AddReceiver(l ...*Ledger) *UserCreate {
+	ids := make([]int, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
 	}
 	return uc.AddReceiverIDs(ids...)
 }
@@ -225,7 +225,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.DonorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -241,7 +241,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.ReceiverColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(balancelog.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

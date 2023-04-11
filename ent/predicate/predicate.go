@@ -6,11 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// BalanceLog is the predicate function for balancelog builders.
-type BalanceLog func(*sql.Selector)
-
 // Grocery is the predicate function for grocery builders.
 type Grocery func(*sql.Selector)
+
+// Ledger is the predicate function for ledger builders.
+type Ledger func(*sql.Selector)
 
 // Purchase is the predicate function for purchase builders.
 type Purchase func(*sql.Selector)

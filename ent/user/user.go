@@ -36,17 +36,17 @@ const (
 	// PurchasedColumn is the table column denoting the purchased relation/edge.
 	PurchasedColumn = "user_purchased"
 	// DonorTable is the table that holds the donor relation/edge.
-	DonorTable = "balance_logs"
-	// DonorInverseTable is the table name for the BalanceLog entity.
-	// It exists in this package in order to avoid circular dependency with the "balancelog" package.
-	DonorInverseTable = "balance_logs"
+	DonorTable = "ledgers"
+	// DonorInverseTable is the table name for the Ledger entity.
+	// It exists in this package in order to avoid circular dependency with the "ledger" package.
+	DonorInverseTable = "ledgers"
 	// DonorColumn is the table column denoting the donor relation/edge.
 	DonorColumn = "user_donor"
 	// ReceiverTable is the table that holds the receiver relation/edge.
-	ReceiverTable = "balance_logs"
-	// ReceiverInverseTable is the table name for the BalanceLog entity.
-	// It exists in this package in order to avoid circular dependency with the "balancelog" package.
-	ReceiverInverseTable = "balance_logs"
+	ReceiverTable = "ledgers"
+	// ReceiverInverseTable is the table name for the Ledger entity.
+	// It exists in this package in order to avoid circular dependency with the "ledger" package.
+	ReceiverInverseTable = "ledgers"
 	// ReceiverColumn is the table column denoting the receiver relation/edge.
 	ReceiverColumn = "user_receiver"
 )
