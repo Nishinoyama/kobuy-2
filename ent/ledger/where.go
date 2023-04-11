@@ -118,24 +118,24 @@ func TypeNotIn(vs ...Type) predicate.Ledger {
 	return predicate.Ledger(sql.FieldNotIn(FieldType, vs...))
 }
 
-// HasDonor applies the HasEdge predicate on the "donor" edge.
-func HasDonor() predicate.Ledger {
+// HasPayer applies the HasEdge predicate on the "payer" edge.
+func HasPayer() predicate.Ledger {
 	return predicate.Ledger(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DonorTable, DonorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, PayerTable, PayerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasDonorWith applies the HasEdge predicate on the "donor" edge with a given conditions (other predicates).
-func HasDonorWith(preds ...predicate.User) predicate.Ledger {
+// HasPayerWith applies the HasEdge predicate on the "payer" edge with a given conditions (other predicates).
+func HasPayerWith(preds ...predicate.User) predicate.Ledger {
 	return predicate.Ledger(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(DonorInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DonorTable, DonorColumn),
+			sqlgraph.To(PayerInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PayerTable, PayerColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

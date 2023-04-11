@@ -72,19 +72,19 @@ func (uc *UserCreate) AddPurchased(p ...*Purchase) *UserCreate {
 	return uc.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
-func (uc *UserCreate) AddDonorIDs(ids ...int) *UserCreate {
-	uc.mutation.AddDonorIDs(ids...)
+// AddPayerIDs adds the "payer" edge to the Ledger entity by IDs.
+func (uc *UserCreate) AddPayerIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPayerIDs(ids...)
 	return uc
 }
 
-// AddDonor adds the "donor" edges to the Ledger entity.
-func (uc *UserCreate) AddDonor(l ...*Ledger) *UserCreate {
+// AddPayer adds the "payer" edges to the Ledger entity.
+func (uc *UserCreate) AddPayer(l ...*Ledger) *UserCreate {
 	ids := make([]int, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
-	return uc.AddDonorIDs(ids...)
+	return uc.AddPayerIDs(ids...)
 }
 
 // AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
@@ -217,12 +217,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),

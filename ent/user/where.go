@@ -222,24 +222,24 @@ func HasPurchasedWith(preds ...predicate.Purchase) predicate.User {
 	})
 }
 
-// HasDonor applies the HasEdge predicate on the "donor" edge.
-func HasDonor() predicate.User {
+// HasPayer applies the HasEdge predicate on the "payer" edge.
+func HasPayer() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, DonorTable, DonorColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, PayerTable, PayerColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasDonorWith applies the HasEdge predicate on the "donor" edge with a given conditions (other predicates).
-func HasDonorWith(preds ...predicate.Ledger) predicate.User {
+// HasPayerWith applies the HasEdge predicate on the "payer" edge with a given conditions (other predicates).
+func HasPayerWith(preds ...predicate.Ledger) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(DonorInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, DonorTable, DonorColumn),
+			sqlgraph.To(PayerInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PayerTable, PayerColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

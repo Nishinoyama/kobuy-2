@@ -32,23 +32,23 @@ func (lc *LedgerCreate) SetType(l ledger.Type) *LedgerCreate {
 	return lc
 }
 
-// SetDonorID sets the "donor" edge to the User entity by ID.
-func (lc *LedgerCreate) SetDonorID(id int) *LedgerCreate {
-	lc.mutation.SetDonorID(id)
+// SetPayerID sets the "payer" edge to the User entity by ID.
+func (lc *LedgerCreate) SetPayerID(id int) *LedgerCreate {
+	lc.mutation.SetPayerID(id)
 	return lc
 }
 
-// SetNillableDonorID sets the "donor" edge to the User entity by ID if the given value is not nil.
-func (lc *LedgerCreate) SetNillableDonorID(id *int) *LedgerCreate {
+// SetNillablePayerID sets the "payer" edge to the User entity by ID if the given value is not nil.
+func (lc *LedgerCreate) SetNillablePayerID(id *int) *LedgerCreate {
 	if id != nil {
-		lc = lc.SetDonorID(*id)
+		lc = lc.SetPayerID(*id)
 	}
 	return lc
 }
 
-// SetDonor sets the "donor" edge to the User entity.
-func (lc *LedgerCreate) SetDonor(u *User) *LedgerCreate {
-	return lc.SetDonorID(u.ID)
+// SetPayer sets the "payer" edge to the User entity.
+func (lc *LedgerCreate) SetPayer(u *User) *LedgerCreate {
+	return lc.SetPayerID(u.ID)
 }
 
 // SetReceiverID sets the "receiver" edge to the User entity by ID.
@@ -149,12 +149,12 @@ func (lc *LedgerCreate) createSpec() (*Ledger, *sqlgraph.CreateSpec) {
 		_spec.SetField(ledger.FieldType, field.TypeEnum, value)
 		_node.Type = value
 	}
-	if nodes := lc.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := lc.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   ledger.DonorTable,
-			Columns: []string{ledger.DonorColumn},
+			Table:   ledger.PayerTable,
+			Columns: []string{ledger.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -163,7 +163,7 @@ func (lc *LedgerCreate) createSpec() (*Ledger, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_donor = &nodes[0]
+		_node.user_payer = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := lc.mutation.ReceiverIDs(); len(nodes) > 0 {

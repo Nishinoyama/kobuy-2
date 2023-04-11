@@ -47,23 +47,23 @@ func (lu *LedgerUpdate) SetType(l ledger.Type) *LedgerUpdate {
 	return lu
 }
 
-// SetDonorID sets the "donor" edge to the User entity by ID.
-func (lu *LedgerUpdate) SetDonorID(id int) *LedgerUpdate {
-	lu.mutation.SetDonorID(id)
+// SetPayerID sets the "payer" edge to the User entity by ID.
+func (lu *LedgerUpdate) SetPayerID(id int) *LedgerUpdate {
+	lu.mutation.SetPayerID(id)
 	return lu
 }
 
-// SetNillableDonorID sets the "donor" edge to the User entity by ID if the given value is not nil.
-func (lu *LedgerUpdate) SetNillableDonorID(id *int) *LedgerUpdate {
+// SetNillablePayerID sets the "payer" edge to the User entity by ID if the given value is not nil.
+func (lu *LedgerUpdate) SetNillablePayerID(id *int) *LedgerUpdate {
 	if id != nil {
-		lu = lu.SetDonorID(*id)
+		lu = lu.SetPayerID(*id)
 	}
 	return lu
 }
 
-// SetDonor sets the "donor" edge to the User entity.
-func (lu *LedgerUpdate) SetDonor(u *User) *LedgerUpdate {
-	return lu.SetDonorID(u.ID)
+// SetPayer sets the "payer" edge to the User entity.
+func (lu *LedgerUpdate) SetPayer(u *User) *LedgerUpdate {
+	return lu.SetPayerID(u.ID)
 }
 
 // SetReceiverID sets the "receiver" edge to the User entity by ID.
@@ -90,9 +90,9 @@ func (lu *LedgerUpdate) Mutation() *LedgerMutation {
 	return lu.mutation
 }
 
-// ClearDonor clears the "donor" edge to the User entity.
-func (lu *LedgerUpdate) ClearDonor() *LedgerUpdate {
-	lu.mutation.ClearDonor()
+// ClearPayer clears the "payer" edge to the User entity.
+func (lu *LedgerUpdate) ClearPayer() *LedgerUpdate {
+	lu.mutation.ClearPayer()
 	return lu
 }
 
@@ -160,12 +160,12 @@ func (lu *LedgerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lu.mutation.GetType(); ok {
 		_spec.SetField(ledger.FieldType, field.TypeEnum, value)
 	}
-	if lu.mutation.DonorCleared() {
+	if lu.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   ledger.DonorTable,
-			Columns: []string{ledger.DonorColumn},
+			Table:   ledger.PayerTable,
+			Columns: []string{ledger.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -173,12 +173,12 @@ func (lu *LedgerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := lu.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   ledger.DonorTable,
-			Columns: []string{ledger.DonorColumn},
+			Table:   ledger.PayerTable,
+			Columns: []string{ledger.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -257,23 +257,23 @@ func (luo *LedgerUpdateOne) SetType(l ledger.Type) *LedgerUpdateOne {
 	return luo
 }
 
-// SetDonorID sets the "donor" edge to the User entity by ID.
-func (luo *LedgerUpdateOne) SetDonorID(id int) *LedgerUpdateOne {
-	luo.mutation.SetDonorID(id)
+// SetPayerID sets the "payer" edge to the User entity by ID.
+func (luo *LedgerUpdateOne) SetPayerID(id int) *LedgerUpdateOne {
+	luo.mutation.SetPayerID(id)
 	return luo
 }
 
-// SetNillableDonorID sets the "donor" edge to the User entity by ID if the given value is not nil.
-func (luo *LedgerUpdateOne) SetNillableDonorID(id *int) *LedgerUpdateOne {
+// SetNillablePayerID sets the "payer" edge to the User entity by ID if the given value is not nil.
+func (luo *LedgerUpdateOne) SetNillablePayerID(id *int) *LedgerUpdateOne {
 	if id != nil {
-		luo = luo.SetDonorID(*id)
+		luo = luo.SetPayerID(*id)
 	}
 	return luo
 }
 
-// SetDonor sets the "donor" edge to the User entity.
-func (luo *LedgerUpdateOne) SetDonor(u *User) *LedgerUpdateOne {
-	return luo.SetDonorID(u.ID)
+// SetPayer sets the "payer" edge to the User entity.
+func (luo *LedgerUpdateOne) SetPayer(u *User) *LedgerUpdateOne {
+	return luo.SetPayerID(u.ID)
 }
 
 // SetReceiverID sets the "receiver" edge to the User entity by ID.
@@ -300,9 +300,9 @@ func (luo *LedgerUpdateOne) Mutation() *LedgerMutation {
 	return luo.mutation
 }
 
-// ClearDonor clears the "donor" edge to the User entity.
-func (luo *LedgerUpdateOne) ClearDonor() *LedgerUpdateOne {
-	luo.mutation.ClearDonor()
+// ClearPayer clears the "payer" edge to the User entity.
+func (luo *LedgerUpdateOne) ClearPayer() *LedgerUpdateOne {
+	luo.mutation.ClearPayer()
 	return luo
 }
 
@@ -400,12 +400,12 @@ func (luo *LedgerUpdateOne) sqlSave(ctx context.Context) (_node *Ledger, err err
 	if value, ok := luo.mutation.GetType(); ok {
 		_spec.SetField(ledger.FieldType, field.TypeEnum, value)
 	}
-	if luo.mutation.DonorCleared() {
+	if luo.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   ledger.DonorTable,
-			Columns: []string{ledger.DonorColumn},
+			Table:   ledger.PayerTable,
+			Columns: []string{ledger.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -413,12 +413,12 @@ func (luo *LedgerUpdateOne) sqlSave(ctx context.Context) (_node *Ledger, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := luo.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   ledger.DonorTable,
-			Columns: []string{ledger.DonorColumn},
+			Table:   ledger.PayerTable,
+			Columns: []string{ledger.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

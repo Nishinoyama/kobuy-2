@@ -806,8 +806,8 @@ type LedgerMutation struct {
 	addprice        *int
 	_type           *ledger.Type
 	clearedFields   map[string]struct{}
-	donor           *int
-	cleareddonor    bool
+	payer           *int
+	clearedpayer    bool
 	receiver        *int
 	clearedreceiver bool
 	done            bool
@@ -1005,43 +1005,43 @@ func (m *LedgerMutation) ResetType() {
 	m._type = nil
 }
 
-// SetDonorID sets the "donor" edge to the User entity by id.
-func (m *LedgerMutation) SetDonorID(id int) {
-	m.donor = &id
+// SetPayerID sets the "payer" edge to the User entity by id.
+func (m *LedgerMutation) SetPayerID(id int) {
+	m.payer = &id
 }
 
-// ClearDonor clears the "donor" edge to the User entity.
-func (m *LedgerMutation) ClearDonor() {
-	m.cleareddonor = true
+// ClearPayer clears the "payer" edge to the User entity.
+func (m *LedgerMutation) ClearPayer() {
+	m.clearedpayer = true
 }
 
-// DonorCleared reports if the "donor" edge to the User entity was cleared.
-func (m *LedgerMutation) DonorCleared() bool {
-	return m.cleareddonor
+// PayerCleared reports if the "payer" edge to the User entity was cleared.
+func (m *LedgerMutation) PayerCleared() bool {
+	return m.clearedpayer
 }
 
-// DonorID returns the "donor" edge ID in the mutation.
-func (m *LedgerMutation) DonorID() (id int, exists bool) {
-	if m.donor != nil {
-		return *m.donor, true
+// PayerID returns the "payer" edge ID in the mutation.
+func (m *LedgerMutation) PayerID() (id int, exists bool) {
+	if m.payer != nil {
+		return *m.payer, true
 	}
 	return
 }
 
-// DonorIDs returns the "donor" edge IDs in the mutation.
+// PayerIDs returns the "payer" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// DonorID instead. It exists only for internal usage by the builders.
-func (m *LedgerMutation) DonorIDs() (ids []int) {
-	if id := m.donor; id != nil {
+// PayerID instead. It exists only for internal usage by the builders.
+func (m *LedgerMutation) PayerIDs() (ids []int) {
+	if id := m.payer; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetDonor resets all changes to the "donor" edge.
-func (m *LedgerMutation) ResetDonor() {
-	m.donor = nil
-	m.cleareddonor = false
+// ResetPayer resets all changes to the "payer" edge.
+func (m *LedgerMutation) ResetPayer() {
+	m.payer = nil
+	m.clearedpayer = false
 }
 
 // SetReceiverID sets the "receiver" edge to the User entity by id.
@@ -1249,8 +1249,8 @@ func (m *LedgerMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *LedgerMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.donor != nil {
-		edges = append(edges, ledger.EdgeDonor)
+	if m.payer != nil {
+		edges = append(edges, ledger.EdgePayer)
 	}
 	if m.receiver != nil {
 		edges = append(edges, ledger.EdgeReceiver)
@@ -1262,8 +1262,8 @@ func (m *LedgerMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *LedgerMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case ledger.EdgeDonor:
-		if id := m.donor; id != nil {
+	case ledger.EdgePayer:
+		if id := m.payer; id != nil {
 			return []ent.Value{*id}
 		}
 	case ledger.EdgeReceiver:
@@ -1289,8 +1289,8 @@ func (m *LedgerMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *LedgerMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.cleareddonor {
-		edges = append(edges, ledger.EdgeDonor)
+	if m.clearedpayer {
+		edges = append(edges, ledger.EdgePayer)
 	}
 	if m.clearedreceiver {
 		edges = append(edges, ledger.EdgeReceiver)
@@ -1302,8 +1302,8 @@ func (m *LedgerMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *LedgerMutation) EdgeCleared(name string) bool {
 	switch name {
-	case ledger.EdgeDonor:
-		return m.cleareddonor
+	case ledger.EdgePayer:
+		return m.clearedpayer
 	case ledger.EdgeReceiver:
 		return m.clearedreceiver
 	}
@@ -1314,8 +1314,8 @@ func (m *LedgerMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *LedgerMutation) ClearEdge(name string) error {
 	switch name {
-	case ledger.EdgeDonor:
-		m.ClearDonor()
+	case ledger.EdgePayer:
+		m.ClearPayer()
 		return nil
 	case ledger.EdgeReceiver:
 		m.ClearReceiver()
@@ -1328,8 +1328,8 @@ func (m *LedgerMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *LedgerMutation) ResetEdge(name string) error {
 	switch name {
-	case ledger.EdgeDonor:
-		m.ResetDonor()
+	case ledger.EdgePayer:
+		m.ResetPayer()
 		return nil
 	case ledger.EdgeReceiver:
 		m.ResetReceiver()
@@ -1983,9 +1983,9 @@ type UserMutation struct {
 	purchased                 map[int]struct{}
 	removedpurchased          map[int]struct{}
 	clearedpurchased          bool
-	donor                     map[int]struct{}
-	removeddonor              map[int]struct{}
-	cleareddonor              bool
+	payer                     map[int]struct{}
+	removedpayer              map[int]struct{}
+	clearedpayer              bool
 	receiver                  map[int]struct{}
 	removedreceiver           map[int]struct{}
 	clearedreceiver           bool
@@ -2292,58 +2292,58 @@ func (m *UserMutation) ResetPurchased() {
 	m.removedpurchased = nil
 }
 
-// AddDonorIDs adds the "donor" edge to the Ledger entity by ids.
-func (m *UserMutation) AddDonorIDs(ids ...int) {
-	if m.donor == nil {
-		m.donor = make(map[int]struct{})
+// AddPayerIDs adds the "payer" edge to the Ledger entity by ids.
+func (m *UserMutation) AddPayerIDs(ids ...int) {
+	if m.payer == nil {
+		m.payer = make(map[int]struct{})
 	}
 	for i := range ids {
-		m.donor[ids[i]] = struct{}{}
+		m.payer[ids[i]] = struct{}{}
 	}
 }
 
-// ClearDonor clears the "donor" edge to the Ledger entity.
-func (m *UserMutation) ClearDonor() {
-	m.cleareddonor = true
+// ClearPayer clears the "payer" edge to the Ledger entity.
+func (m *UserMutation) ClearPayer() {
+	m.clearedpayer = true
 }
 
-// DonorCleared reports if the "donor" edge to the Ledger entity was cleared.
-func (m *UserMutation) DonorCleared() bool {
-	return m.cleareddonor
+// PayerCleared reports if the "payer" edge to the Ledger entity was cleared.
+func (m *UserMutation) PayerCleared() bool {
+	return m.clearedpayer
 }
 
-// RemoveDonorIDs removes the "donor" edge to the Ledger entity by IDs.
-func (m *UserMutation) RemoveDonorIDs(ids ...int) {
-	if m.removeddonor == nil {
-		m.removeddonor = make(map[int]struct{})
+// RemovePayerIDs removes the "payer" edge to the Ledger entity by IDs.
+func (m *UserMutation) RemovePayerIDs(ids ...int) {
+	if m.removedpayer == nil {
+		m.removedpayer = make(map[int]struct{})
 	}
 	for i := range ids {
-		delete(m.donor, ids[i])
-		m.removeddonor[ids[i]] = struct{}{}
+		delete(m.payer, ids[i])
+		m.removedpayer[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedDonor returns the removed IDs of the "donor" edge to the Ledger entity.
-func (m *UserMutation) RemovedDonorIDs() (ids []int) {
-	for id := range m.removeddonor {
+// RemovedPayer returns the removed IDs of the "payer" edge to the Ledger entity.
+func (m *UserMutation) RemovedPayerIDs() (ids []int) {
+	for id := range m.removedpayer {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// DonorIDs returns the "donor" edge IDs in the mutation.
-func (m *UserMutation) DonorIDs() (ids []int) {
-	for id := range m.donor {
+// PayerIDs returns the "payer" edge IDs in the mutation.
+func (m *UserMutation) PayerIDs() (ids []int) {
+	for id := range m.payer {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetDonor resets all changes to the "donor" edge.
-func (m *UserMutation) ResetDonor() {
-	m.donor = nil
-	m.cleareddonor = false
-	m.removeddonor = nil
+// ResetPayer resets all changes to the "payer" edge.
+func (m *UserMutation) ResetPayer() {
+	m.payer = nil
+	m.clearedpayer = false
+	m.removedpayer = nil
 }
 
 // AddReceiverIDs adds the "receiver" edge to the Ledger entity by ids.
@@ -2572,8 +2572,8 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.purchased != nil {
 		edges = append(edges, user.EdgePurchased)
 	}
-	if m.donor != nil {
-		edges = append(edges, user.EdgeDonor)
+	if m.payer != nil {
+		edges = append(edges, user.EdgePayer)
 	}
 	if m.receiver != nil {
 		edges = append(edges, user.EdgeReceiver)
@@ -2597,9 +2597,9 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeDonor:
-		ids := make([]ent.Value, 0, len(m.donor))
-		for id := range m.donor {
+	case user.EdgePayer:
+		ids := make([]ent.Value, 0, len(m.payer))
+		for id := range m.payer {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2622,8 +2622,8 @@ func (m *UserMutation) RemovedEdges() []string {
 	if m.removedpurchased != nil {
 		edges = append(edges, user.EdgePurchased)
 	}
-	if m.removeddonor != nil {
-		edges = append(edges, user.EdgeDonor)
+	if m.removedpayer != nil {
+		edges = append(edges, user.EdgePayer)
 	}
 	if m.removedreceiver != nil {
 		edges = append(edges, user.EdgeReceiver)
@@ -2647,9 +2647,9 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeDonor:
-		ids := make([]ent.Value, 0, len(m.removeddonor))
-		for id := range m.removeddonor {
+	case user.EdgePayer:
+		ids := make([]ent.Value, 0, len(m.removedpayer))
+		for id := range m.removedpayer {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2672,8 +2672,8 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedpurchased {
 		edges = append(edges, user.EdgePurchased)
 	}
-	if m.cleareddonor {
-		edges = append(edges, user.EdgeDonor)
+	if m.clearedpayer {
+		edges = append(edges, user.EdgePayer)
 	}
 	if m.clearedreceiver {
 		edges = append(edges, user.EdgeReceiver)
@@ -2689,8 +2689,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedprovided_groceries
 	case user.EdgePurchased:
 		return m.clearedpurchased
-	case user.EdgeDonor:
-		return m.cleareddonor
+	case user.EdgePayer:
+		return m.clearedpayer
 	case user.EdgeReceiver:
 		return m.clearedreceiver
 	}
@@ -2715,8 +2715,8 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgePurchased:
 		m.ResetPurchased()
 		return nil
-	case user.EdgeDonor:
-		m.ResetDonor()
+	case user.EdgePayer:
+		m.ResetPayer()
 		return nil
 	case user.EdgeReceiver:
 		m.ResetReceiver()

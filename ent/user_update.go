@@ -87,19 +87,19 @@ func (uu *UserUpdate) AddPurchased(p ...*Purchase) *UserUpdate {
 	return uu.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
-func (uu *UserUpdate) AddDonorIDs(ids ...int) *UserUpdate {
-	uu.mutation.AddDonorIDs(ids...)
+// AddPayerIDs adds the "payer" edge to the Ledger entity by IDs.
+func (uu *UserUpdate) AddPayerIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddPayerIDs(ids...)
 	return uu
 }
 
-// AddDonor adds the "donor" edges to the Ledger entity.
-func (uu *UserUpdate) AddDonor(l ...*Ledger) *UserUpdate {
+// AddPayer adds the "payer" edges to the Ledger entity.
+func (uu *UserUpdate) AddPayer(l ...*Ledger) *UserUpdate {
 	ids := make([]int, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
-	return uu.AddDonorIDs(ids...)
+	return uu.AddPayerIDs(ids...)
 }
 
 // AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
@@ -164,25 +164,25 @@ func (uu *UserUpdate) RemovePurchased(p ...*Purchase) *UserUpdate {
 	return uu.RemovePurchasedIDs(ids...)
 }
 
-// ClearDonor clears all "donor" edges to the Ledger entity.
-func (uu *UserUpdate) ClearDonor() *UserUpdate {
-	uu.mutation.ClearDonor()
+// ClearPayer clears all "payer" edges to the Ledger entity.
+func (uu *UserUpdate) ClearPayer() *UserUpdate {
+	uu.mutation.ClearPayer()
 	return uu
 }
 
-// RemoveDonorIDs removes the "donor" edge to Ledger entities by IDs.
-func (uu *UserUpdate) RemoveDonorIDs(ids ...int) *UserUpdate {
-	uu.mutation.RemoveDonorIDs(ids...)
+// RemovePayerIDs removes the "payer" edge to Ledger entities by IDs.
+func (uu *UserUpdate) RemovePayerIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemovePayerIDs(ids...)
 	return uu
 }
 
-// RemoveDonor removes "donor" edges to Ledger entities.
-func (uu *UserUpdate) RemoveDonor(l ...*Ledger) *UserUpdate {
+// RemovePayer removes "payer" edges to Ledger entities.
+func (uu *UserUpdate) RemovePayer(l ...*Ledger) *UserUpdate {
 	ids := make([]int, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
-	return uu.RemoveDonorIDs(ids...)
+	return uu.RemovePayerIDs(ids...)
 }
 
 // ClearReceiver clears all "receiver" edges to the Ledger entity.
@@ -341,12 +341,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.DonorCleared() {
+	if uu.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
@@ -354,12 +354,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedDonorIDs(); len(nodes) > 0 && !uu.mutation.DonorCleared() {
+	if nodes := uu.mutation.RemovedPayerIDs(); len(nodes) > 0 && !uu.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
@@ -370,12 +370,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
@@ -508,19 +508,19 @@ func (uuo *UserUpdateOne) AddPurchased(p ...*Purchase) *UserUpdateOne {
 	return uuo.AddPurchasedIDs(ids...)
 }
 
-// AddDonorIDs adds the "donor" edge to the Ledger entity by IDs.
-func (uuo *UserUpdateOne) AddDonorIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.AddDonorIDs(ids...)
+// AddPayerIDs adds the "payer" edge to the Ledger entity by IDs.
+func (uuo *UserUpdateOne) AddPayerIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddPayerIDs(ids...)
 	return uuo
 }
 
-// AddDonor adds the "donor" edges to the Ledger entity.
-func (uuo *UserUpdateOne) AddDonor(l ...*Ledger) *UserUpdateOne {
+// AddPayer adds the "payer" edges to the Ledger entity.
+func (uuo *UserUpdateOne) AddPayer(l ...*Ledger) *UserUpdateOne {
 	ids := make([]int, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
-	return uuo.AddDonorIDs(ids...)
+	return uuo.AddPayerIDs(ids...)
 }
 
 // AddReceiverIDs adds the "receiver" edge to the Ledger entity by IDs.
@@ -585,25 +585,25 @@ func (uuo *UserUpdateOne) RemovePurchased(p ...*Purchase) *UserUpdateOne {
 	return uuo.RemovePurchasedIDs(ids...)
 }
 
-// ClearDonor clears all "donor" edges to the Ledger entity.
-func (uuo *UserUpdateOne) ClearDonor() *UserUpdateOne {
-	uuo.mutation.ClearDonor()
+// ClearPayer clears all "payer" edges to the Ledger entity.
+func (uuo *UserUpdateOne) ClearPayer() *UserUpdateOne {
+	uuo.mutation.ClearPayer()
 	return uuo
 }
 
-// RemoveDonorIDs removes the "donor" edge to Ledger entities by IDs.
-func (uuo *UserUpdateOne) RemoveDonorIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.RemoveDonorIDs(ids...)
+// RemovePayerIDs removes the "payer" edge to Ledger entities by IDs.
+func (uuo *UserUpdateOne) RemovePayerIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemovePayerIDs(ids...)
 	return uuo
 }
 
-// RemoveDonor removes "donor" edges to Ledger entities.
-func (uuo *UserUpdateOne) RemoveDonor(l ...*Ledger) *UserUpdateOne {
+// RemovePayer removes "payer" edges to Ledger entities.
+func (uuo *UserUpdateOne) RemovePayer(l ...*Ledger) *UserUpdateOne {
 	ids := make([]int, len(l))
 	for i := range l {
 		ids[i] = l[i].ID
 	}
-	return uuo.RemoveDonorIDs(ids...)
+	return uuo.RemovePayerIDs(ids...)
 }
 
 // ClearReceiver clears all "receiver" edges to the Ledger entity.
@@ -792,12 +792,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.DonorCleared() {
+	if uuo.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
@@ -805,12 +805,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedDonorIDs(); len(nodes) > 0 && !uuo.mutation.DonorCleared() {
+	if nodes := uuo.mutation.RemovedPayerIDs(); len(nodes) > 0 && !uuo.mutation.PayerCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),
@@ -821,12 +821,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.DonorIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.PayerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.DonorTable,
-			Columns: []string{user.DonorColumn},
+			Table:   user.PayerTable,
+			Columns: []string{user.PayerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(ledger.FieldID, field.TypeInt),

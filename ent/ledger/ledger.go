@@ -15,19 +15,19 @@ const (
 	FieldPrice = "price"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
-	// EdgeDonor holds the string denoting the donor edge name in mutations.
-	EdgeDonor = "donor"
+	// EdgePayer holds the string denoting the payer edge name in mutations.
+	EdgePayer = "payer"
 	// EdgeReceiver holds the string denoting the receiver edge name in mutations.
 	EdgeReceiver = "receiver"
 	// Table holds the table name of the ledger in the database.
 	Table = "ledgers"
-	// DonorTable is the table that holds the donor relation/edge.
-	DonorTable = "ledgers"
-	// DonorInverseTable is the table name for the User entity.
+	// PayerTable is the table that holds the payer relation/edge.
+	PayerTable = "ledgers"
+	// PayerInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	DonorInverseTable = "users"
-	// DonorColumn is the table column denoting the donor relation/edge.
-	DonorColumn = "user_donor"
+	PayerInverseTable = "users"
+	// PayerColumn is the table column denoting the payer relation/edge.
+	PayerColumn = "user_payer"
 	// ReceiverTable is the table that holds the receiver relation/edge.
 	ReceiverTable = "ledgers"
 	// ReceiverInverseTable is the table name for the User entity.
@@ -47,7 +47,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "ledgers"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_donor",
+	"user_payer",
 	"user_receiver",
 }
 

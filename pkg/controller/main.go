@@ -67,19 +67,19 @@ func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groce
 		}
 		return err
 	}
-	if err := tx.User.UpdateOne(buyer).SetBalance(buyer.Balance - price).Exec(ctx); err != nil {
+	if err := tx.User.UpdateOne(buyer).AddBalance(-price).Exec(ctx); err != nil {
 		if tx.Rollback() != nil {
 			return errors.New("roll back failed")
 		}
 		return err
 	}
-	if err := tx.User.UpdateOne(seller).SetBalance(seller.Balance + price).Exec(ctx); err != nil {
+	if err := tx.User.UpdateOne(seller).AddBalance(price).Exec(ctx); err != nil {
 		if tx.Rollback() != nil {
 			return errors.New("roll back failed")
 		}
 		return err
 	}
-	if err := tx.Ledger.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
+	if err := tx.Ledger.Create().SetPayer(buyer).SetReceiver(seller).SetPrice(price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
 		if tx.Rollback() != nil {
 			return errors.New("roll back failed")
 		}

@@ -48,6 +48,7 @@ func main() {
 		v1.GET("/ledger", handler.GetLedger(client))
 		v1.POST("/groceries/provide", handler.ProvideGroceryHandler(client.Grocery))
 		v1.POST("/groceries/purchase", handler.PurchaseGroceryHandler(client))
+		v1.POST("/ledger/cash", handler.CashLedgerHandler(client))
 	}
 	{
 		engine.LoadHTMLGlob("./cmd/templates/*")

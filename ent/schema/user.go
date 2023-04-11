@@ -24,7 +24,7 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("provided_groceries", Grocery.Type),
 		edge.To("purchased", Purchase.Type),
-		edge.To("donor", Ledger.Type),
+		edge.To("payer", Ledger.Type),
 		edge.To("receiver", Ledger.Type),
 	}
 }

@@ -22,7 +22,7 @@ func (Ledger) Fields() []ent.Field {
 // Edges of the Ledger.
 func (Ledger) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("donor", User.Type).Ref("donor").Unique(),
+		edge.From("payer", User.Type).Ref("payer").Unique(),
 		edge.From("receiver", User.Type).Ref("receiver").Unique(),
 	}
 }

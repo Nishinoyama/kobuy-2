@@ -461,15 +461,15 @@ func (c *LedgerClient) GetX(ctx context.Context, id int) *Ledger {
 	return obj
 }
 
-// QueryDonor queries the donor edge of a Ledger.
-func (c *LedgerClient) QueryDonor(l *Ledger) *UserQuery {
+// QueryPayer queries the payer edge of a Ledger.
+func (c *LedgerClient) QueryPayer(l *Ledger) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := l.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(ledger.Table, ledger.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ledger.DonorTable, ledger.DonorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ledger.PayerTable, ledger.PayerColumn),
 		)
 		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
 		return fromV, nil
@@ -793,15 +793,15 @@ func (c *UserClient) QueryPurchased(u *User) *PurchaseQuery {
 	return query
 }
 
-// QueryDonor queries the donor edge of a User.
-func (c *UserClient) QueryDonor(u *User) *LedgerQuery {
+// QueryPayer queries the payer edge of a User.
+func (c *UserClient) QueryPayer(u *User) *LedgerQuery {
 	query := (&LedgerClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(ledger.Table, ledger.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.DonorTable, user.DonorColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PayerTable, user.PayerColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

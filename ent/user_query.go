@@ -27,7 +27,7 @@ type UserQuery struct {
 	predicates            []predicate.User
 	withProvidedGroceries *GroceryQuery
 	withPurchased         *PurchaseQuery
-	withDonor             *LedgerQuery
+	withPayer             *LedgerQuery
 	withReceiver          *LedgerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -109,8 +109,8 @@ func (uq *UserQuery) QueryPurchased() *PurchaseQuery {
 	return query
 }
 
-// QueryDonor chains the current query on the "donor" edge.
-func (uq *UserQuery) QueryDonor() *LedgerQuery {
+// QueryPayer chains the current query on the "payer" edge.
+func (uq *UserQuery) QueryPayer() *LedgerQuery {
 	query := (&LedgerClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -123,7 +123,7 @@ func (uq *UserQuery) QueryDonor() *LedgerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(ledger.Table, ledger.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.DonorTable, user.DonorColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PayerTable, user.PayerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -347,7 +347,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		predicates:            append([]predicate.User{}, uq.predicates...),
 		withProvidedGroceries: uq.withProvidedGroceries.Clone(),
 		withPurchased:         uq.withPurchased.Clone(),
-		withDonor:             uq.withDonor.Clone(),
+		withPayer:             uq.withPayer.Clone(),
 		withReceiver:          uq.withReceiver.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
@@ -377,14 +377,14 @@ func (uq *UserQuery) WithPurchased(opts ...func(*PurchaseQuery)) *UserQuery {
 	return uq
 }
 
-// WithDonor tells the query-builder to eager-load the nodes that are connected to
-// the "donor" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithDonor(opts ...func(*LedgerQuery)) *UserQuery {
+// WithPayer tells the query-builder to eager-load the nodes that are connected to
+// the "payer" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithPayer(opts ...func(*LedgerQuery)) *UserQuery {
 	query := (&LedgerClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withDonor = query
+	uq.withPayer = query
 	return uq
 }
 
@@ -480,7 +480,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		loadedTypes = [4]bool{
 			uq.withProvidedGroceries != nil,
 			uq.withPurchased != nil,
-			uq.withDonor != nil,
+			uq.withPayer != nil,
 			uq.withReceiver != nil,
 		}
 	)
@@ -516,10 +516,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
-	if query := uq.withDonor; query != nil {
-		if err := uq.loadDonor(ctx, query, nodes,
-			func(n *User) { n.Edges.Donor = []*Ledger{} },
-			func(n *User, e *Ledger) { n.Edges.Donor = append(n.Edges.Donor, e) }); err != nil {
+	if query := uq.withPayer; query != nil {
+		if err := uq.loadPayer(ctx, query, nodes,
+			func(n *User) { n.Edges.Payer = []*Ledger{} },
+			func(n *User, e *Ledger) { n.Edges.Payer = append(n.Edges.Payer, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -595,7 +595,7 @@ func (uq *UserQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, no
 	}
 	return nil
 }
-func (uq *UserQuery) loadDonor(ctx context.Context, query *LedgerQuery, nodes []*User, init func(*User), assign func(*User, *Ledger)) error {
+func (uq *UserQuery) loadPayer(ctx context.Context, query *LedgerQuery, nodes []*User, init func(*User), assign func(*User, *Ledger)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*User)
 	for i := range nodes {
@@ -607,20 +607,20 @@ func (uq *UserQuery) loadDonor(ctx context.Context, query *LedgerQuery, nodes []
 	}
 	query.withFKs = true
 	query.Where(predicate.Ledger(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.DonorColumn, fks...))
+		s.Where(sql.InValues(user.PayerColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_donor
+		fk := n.user_payer
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_donor" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "user_payer" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_donor" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_payer" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -22,7 +22,7 @@ type LedgerQuery struct {
 	order        []OrderFunc
 	inters       []Interceptor
 	predicates   []predicate.Ledger
-	withDonor    *UserQuery
+	withPayer    *UserQuery
 	withReceiver *UserQuery
 	withFKs      bool
 	// intermediate query (i.e. traversal path).
@@ -61,8 +61,8 @@ func (lq *LedgerQuery) Order(o ...OrderFunc) *LedgerQuery {
 	return lq
 }
 
-// QueryDonor chains the current query on the "donor" edge.
-func (lq *LedgerQuery) QueryDonor() *UserQuery {
+// QueryPayer chains the current query on the "payer" edge.
+func (lq *LedgerQuery) QueryPayer() *UserQuery {
 	query := (&UserClient{config: lq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := lq.prepareQuery(ctx); err != nil {
@@ -75,7 +75,7 @@ func (lq *LedgerQuery) QueryDonor() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(ledger.Table, ledger.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ledger.DonorTable, ledger.DonorColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, ledger.PayerTable, ledger.PayerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(lq.driver.Dialect(), step)
 		return fromU, nil
@@ -297,7 +297,7 @@ func (lq *LedgerQuery) Clone() *LedgerQuery {
 		order:        append([]OrderFunc{}, lq.order...),
 		inters:       append([]Interceptor{}, lq.inters...),
 		predicates:   append([]predicate.Ledger{}, lq.predicates...),
-		withDonor:    lq.withDonor.Clone(),
+		withPayer:    lq.withPayer.Clone(),
 		withReceiver: lq.withReceiver.Clone(),
 		// clone intermediate query.
 		sql:  lq.sql.Clone(),
@@ -305,14 +305,14 @@ func (lq *LedgerQuery) Clone() *LedgerQuery {
 	}
 }
 
-// WithDonor tells the query-builder to eager-load the nodes that are connected to
-// the "donor" edge. The optional arguments are used to configure the query builder of the edge.
-func (lq *LedgerQuery) WithDonor(opts ...func(*UserQuery)) *LedgerQuery {
+// WithPayer tells the query-builder to eager-load the nodes that are connected to
+// the "payer" edge. The optional arguments are used to configure the query builder of the edge.
+func (lq *LedgerQuery) WithPayer(opts ...func(*UserQuery)) *LedgerQuery {
 	query := (&UserClient{config: lq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	lq.withDonor = query
+	lq.withPayer = query
 	return lq
 }
 
@@ -407,11 +407,11 @@ func (lq *LedgerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ledge
 		withFKs     = lq.withFKs
 		_spec       = lq.querySpec()
 		loadedTypes = [2]bool{
-			lq.withDonor != nil,
+			lq.withPayer != nil,
 			lq.withReceiver != nil,
 		}
 	)
-	if lq.withDonor != nil || lq.withReceiver != nil {
+	if lq.withPayer != nil || lq.withReceiver != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -435,9 +435,9 @@ func (lq *LedgerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ledge
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := lq.withDonor; query != nil {
-		if err := lq.loadDonor(ctx, query, nodes, nil,
-			func(n *Ledger, e *User) { n.Edges.Donor = e }); err != nil {
+	if query := lq.withPayer; query != nil {
+		if err := lq.loadPayer(ctx, query, nodes, nil,
+			func(n *Ledger, e *User) { n.Edges.Payer = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -450,14 +450,14 @@ func (lq *LedgerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ledge
 	return nodes, nil
 }
 
-func (lq *LedgerQuery) loadDonor(ctx context.Context, query *UserQuery, nodes []*Ledger, init func(*Ledger), assign func(*Ledger, *User)) error {
+func (lq *LedgerQuery) loadPayer(ctx context.Context, query *UserQuery, nodes []*Ledger, init func(*Ledger), assign func(*Ledger, *User)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*Ledger)
 	for i := range nodes {
-		if nodes[i].user_donor == nil {
+		if nodes[i].user_payer == nil {
 			continue
 		}
-		fk := *nodes[i].user_donor
+		fk := *nodes[i].user_payer
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -474,7 +474,7 @@ func (lq *LedgerQuery) loadDonor(ctx context.Context, query *UserQuery, nodes []
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_donor" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_payer" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

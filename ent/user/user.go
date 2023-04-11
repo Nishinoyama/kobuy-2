@@ -15,8 +15,8 @@ const (
 	EdgeProvidedGroceries = "provided_groceries"
 	// EdgePurchased holds the string denoting the purchased edge name in mutations.
 	EdgePurchased = "purchased"
-	// EdgeDonor holds the string denoting the donor edge name in mutations.
-	EdgeDonor = "donor"
+	// EdgePayer holds the string denoting the payer edge name in mutations.
+	EdgePayer = "payer"
 	// EdgeReceiver holds the string denoting the receiver edge name in mutations.
 	EdgeReceiver = "receiver"
 	// Table holds the table name of the user in the database.
@@ -35,13 +35,13 @@ const (
 	PurchasedInverseTable = "purchases"
 	// PurchasedColumn is the table column denoting the purchased relation/edge.
 	PurchasedColumn = "user_purchased"
-	// DonorTable is the table that holds the donor relation/edge.
-	DonorTable = "ledgers"
-	// DonorInverseTable is the table name for the Ledger entity.
+	// PayerTable is the table that holds the payer relation/edge.
+	PayerTable = "ledgers"
+	// PayerInverseTable is the table name for the Ledger entity.
 	// It exists in this package in order to avoid circular dependency with the "ledger" package.
-	DonorInverseTable = "ledgers"
-	// DonorColumn is the table column denoting the donor relation/edge.
-	DonorColumn = "user_donor"
+	PayerInverseTable = "ledgers"
+	// PayerColumn is the table column denoting the payer relation/edge.
+	PayerColumn = "user_payer"
 	// ReceiverTable is the table that holds the receiver relation/edge.
 	ReceiverTable = "ledgers"
 	// ReceiverInverseTable is the table name for the Ledger entity.

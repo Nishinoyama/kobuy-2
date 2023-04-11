@@ -37,7 +37,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "price", Type: field.TypeInt},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"purchase", "cash", "etc"}},
-		{Name: "user_donor", Type: field.TypeInt, Nullable: true},
+		{Name: "user_payer", Type: field.TypeInt, Nullable: true},
 		{Name: "user_receiver", Type: field.TypeInt, Nullable: true},
 	}
 	// LedgersTable holds the schema information for the "ledgers" table.
@@ -47,7 +47,7 @@ var (
 		PrimaryKey: []*schema.Column{LedgersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "ledgers_users_donor",
+				Symbol:     "ledgers_users_payer",
 				Columns:    []*schema.Column{LedgersColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,

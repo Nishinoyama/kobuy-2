@@ -30,8 +30,8 @@ type UserEdges struct {
 	ProvidedGroceries []*Grocery `json:"provided_groceries,omitempty"`
 	// Purchased holds the value of the purchased edge.
 	Purchased []*Purchase `json:"purchased,omitempty"`
-	// Donor holds the value of the donor edge.
-	Donor []*Ledger `json:"donor,omitempty"`
+	// Payer holds the value of the payer edge.
+	Payer []*Ledger `json:"payer,omitempty"`
 	// Receiver holds the value of the receiver edge.
 	Receiver []*Ledger `json:"receiver,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -57,13 +57,13 @@ func (e UserEdges) PurchasedOrErr() ([]*Purchase, error) {
 	return nil, &NotLoadedError{edge: "purchased"}
 }
 
-// DonorOrErr returns the Donor value or an error if the edge
+// PayerOrErr returns the Payer value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) DonorOrErr() ([]*Ledger, error) {
+func (e UserEdges) PayerOrErr() ([]*Ledger, error) {
 	if e.loadedTypes[2] {
-		return e.Donor, nil
+		return e.Payer, nil
 	}
-	return nil, &NotLoadedError{edge: "donor"}
+	return nil, &NotLoadedError{edge: "payer"}
 }
 
 // ReceiverOrErr returns the Receiver value or an error if the edge
@@ -132,9 +132,9 @@ func (u *User) QueryPurchased() *PurchaseQuery {
 	return NewUserClient(u.config).QueryPurchased(u)
 }
 
-// QueryDonor queries the "donor" edge of the User entity.
-func (u *User) QueryDonor() *LedgerQuery {
-	return NewUserClient(u.config).QueryDonor(u)
+// QueryPayer queries the "payer" edge of the User entity.
+func (u *User) QueryPayer() *LedgerQuery {
+	return NewUserClient(u.config).QueryPayer(u)
 }
 
 // QueryReceiver queries the "receiver" edge of the User entity.

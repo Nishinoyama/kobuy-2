@@ -23,14 +23,14 @@ type Ledger struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LedgerQuery when eager-loading is set.
 	Edges         LedgerEdges `json:"edges"`
-	user_donor    *int
+	user_payer    *int
 	user_receiver *int
 }
 
 // LedgerEdges holds the relations/edges for other nodes in the graph.
 type LedgerEdges struct {
-	// Donor holds the value of the donor edge.
-	Donor *User `json:"donor,omitempty"`
+	// Payer holds the value of the payer edge.
+	Payer *User `json:"payer,omitempty"`
 	// Receiver holds the value of the receiver edge.
 	Receiver *User `json:"receiver,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -38,17 +38,17 @@ type LedgerEdges struct {
 	loadedTypes [2]bool
 }
 
-// DonorOrErr returns the Donor value or an error if the edge
+// PayerOrErr returns the Payer value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e LedgerEdges) DonorOrErr() (*User, error) {
+func (e LedgerEdges) PayerOrErr() (*User, error) {
 	if e.loadedTypes[0] {
-		if e.Donor == nil {
+		if e.Payer == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: user.Label}
 		}
-		return e.Donor, nil
+		return e.Payer, nil
 	}
-	return nil, &NotLoadedError{edge: "donor"}
+	return nil, &NotLoadedError{edge: "payer"}
 }
 
 // ReceiverOrErr returns the Receiver value or an error if the edge
@@ -73,7 +73,7 @@ func (*Ledger) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case ledger.FieldType:
 			values[i] = new(sql.NullString)
-		case ledger.ForeignKeys[0]: // user_donor
+		case ledger.ForeignKeys[0]: // user_payer
 			values[i] = new(sql.NullInt64)
 		case ledger.ForeignKeys[1]: // user_receiver
 			values[i] = new(sql.NullInt64)
@@ -112,10 +112,10 @@ func (l *Ledger) assignValues(columns []string, values []any) error {
 			}
 		case ledger.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field user_donor", value)
+				return fmt.Errorf("unexpected type %T for edge-field user_payer", value)
 			} else if value.Valid {
-				l.user_donor = new(int)
-				*l.user_donor = int(value.Int64)
+				l.user_payer = new(int)
+				*l.user_payer = int(value.Int64)
 			}
 		case ledger.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -129,9 +129,9 @@ func (l *Ledger) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// QueryDonor queries the "donor" edge of the Ledger entity.
-func (l *Ledger) QueryDonor() *UserQuery {
-	return NewLedgerClient(l.config).QueryDonor(l)
+// QueryPayer queries the "payer" edge of the Ledger entity.
+func (l *Ledger) QueryPayer() *UserQuery {
+	return NewLedgerClient(l.config).QueryPayer(l)
 }
 
 // QueryReceiver queries the "receiver" edge of the Ledger entity.
