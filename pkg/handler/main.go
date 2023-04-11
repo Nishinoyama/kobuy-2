@@ -31,12 +31,12 @@ func FindUserHandler(userClient *ent.UserClient) func(ctx *gin.Context) {
 			gc.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		user, err := controller.FindUser(userClient, cc, userId)
+		u, err := controller.FindUser(userClient, cc, userId)
 		if err != nil {
 			gc.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
-		gc.JSON(http.StatusOK, user)
+		gc.JSON(http.StatusOK, u)
 	}
 }
 
