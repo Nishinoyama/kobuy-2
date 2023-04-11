@@ -2,7 +2,9 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/ent/balancelog"
 )
 
 type SomeUsersResponse struct {
@@ -10,7 +12,7 @@ type SomeUsersResponse struct {
 }
 
 func GetAllUsers(client *ent.UserClient, ctx context.Context) (*SomeUsersResponse, error) {
-	users, err := client.Query().WithProvidedGroceries().All(ctx)
+	users, err := client.Query().WithProvidedGroceries().WithPurchased().All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -27,4 +29,59 @@ func FindUser(client *ent.UserClient, ctx context.Context, userId int) (*OneUser
 		return nil, err
 	}
 	return &OneUserResponse{user}, nil
+}
+
+func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groceryId int, unit int) error {
+	buyer, err := client.User.Get(ctx, buyerId)
+	if err != nil {
+		return err
+	}
+	grocery, err := client.Grocery.Get(ctx, groceryId)
+	if err != nil {
+		return err
+	}
+	seller, err := grocery.QueryProvider().First(ctx)
+	if err != nil {
+		return err
+	}
+	price := grocery.Price * unit
+
+	tx, err := client.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	if err := tx.Purchase.Create().SetPrice(grocery.Price).SetAmount(unit).SetBuyer(buyer).SetGrocery(grocery).Exec(ctx); err != nil {
+		if tx.Rollback() != nil {
+			return errors.New("roll back failed")
+		}
+		return err
+	}
+	if err := tx.Grocery.UpdateOne(grocery).SetUnit(grocery.Unit - unit).Exec(ctx); err != nil {
+		if tx.Rollback() != nil {
+			return errors.New("roll back failed")
+		}
+		return err
+	}
+	if err := tx.User.UpdateOne(buyer).SetBalance(buyer.Balance - price).Exec(ctx); err != nil {
+		if tx.Rollback() != nil {
+			return errors.New("roll back failed")
+		}
+		return err
+	}
+	if err := tx.User.UpdateOne(seller).SetBalance(seller.Balance + price).Exec(ctx); err != nil {
+		if tx.Rollback() != nil {
+			return errors.New("roll back failed")
+		}
+		return err
+	}
+	if err := tx.BalanceLog.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(price).SetType(balancelog.TypePurchase).Exec(ctx); err != nil {
+		if tx.Rollback() != nil {
+			return errors.New("roll back failed")
+		}
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }

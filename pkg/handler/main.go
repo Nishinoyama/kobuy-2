@@ -84,3 +84,25 @@ func ProvideGroceryHandler(groceryClient *ent.GroceryClient) func(ctx *gin.Conte
 		}
 	}
 }
+
+type PurchaseGroceryRequest struct {
+	BuyerId   int `json:"buyer_id" binding:"required"`
+	GroceryId int `json:"grocery_id" binding:"required"`
+	Unit      int `json:"unit"`
+}
+
+func PurchaseGroceryHandler(client *ent.Client) func(ctx *gin.Context) {
+	return func(gc *gin.Context) {
+		cc := context.Background()
+		var req PurchaseGroceryRequest
+		if err := gc.BindJSON(&req); err != nil {
+			gc.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+		if err := controller.PurchaseGrocery(client, cc, req.BuyerId, req.GroceryId, req.Unit); err != nil {
+			gc.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		gc.JSON(http.StatusOK, true)
+	}
+}
