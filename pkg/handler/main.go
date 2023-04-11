@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/ent/user"
 	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"net/http"
 	"strconv"
@@ -104,5 +105,23 @@ func PurchaseGroceryHandler(client *ent.Client) func(ctx *gin.Context) {
 			return
 		}
 		gc.JSON(http.StatusOK, true)
+	}
+}
+
+func GetLedger(client *ent.Client) func(ctx *gin.Context) {
+	return func(gc *gin.Context) {
+		cc := context.Background()
+		ledger, err := client.BalanceLog.Query().
+			WithReceiver(func(query *ent.UserQuery) {
+				query.Select(user.FieldName)
+			}).
+			WithDonor(func(query *ent.UserQuery) {
+				query.Select(user.FieldName)
+			}).All(cc)
+		if err != nil {
+			gc.JSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+		gc.JSON(http.StatusOK, ledger)
 	}
 }
