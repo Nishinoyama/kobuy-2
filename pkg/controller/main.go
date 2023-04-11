@@ -20,7 +20,8 @@ func GetAllUsers(client *ent.UserClient, ctx context.Context) (*SomeUsersRespons
 }
 
 type OneUserResponse struct {
-	User *ent.User `json:"user"`
+	User     *ent.User       `json:"user"`
+	Purchase []*ent.Purchase `json:"purchase"`
 }
 
 func FindUser(client *ent.UserClient, ctx context.Context, userId int) (*OneUserResponse, error) {
@@ -28,7 +29,11 @@ func FindUser(client *ent.UserClient, ctx context.Context, userId int) (*OneUser
 	if err != nil {
 		return nil, err
 	}
-	return &OneUserResponse{user}, nil
+	purchase, err := user.QueryPurchased().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &OneUserResponse{user, purchase}, nil
 }
 
 func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groceryId int, unit int) error {
