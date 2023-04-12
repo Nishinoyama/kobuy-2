@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/pkg/handler"
+	"github.com/nishinoyama/kobuy-2/pkg/http/handler"
 	"log"
 	"net/http"
 )
