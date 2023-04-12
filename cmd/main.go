@@ -50,9 +50,6 @@ func main() {
 	ledgerController := controller.LedgerController{LedgerService: ledgerService}
 
 	engine := gin.Default()
-	engine.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "pong")
-	})
 
 	v1 := engine.Group("/v1/api")
 	{
@@ -62,6 +59,10 @@ func main() {
 
 		handler.NewPurchaseGroceryHandler(v1, client)
 		handler.NewCashHandler(v1, client)
+
+		v1.GET("/ping", func(c *gin.Context) {
+			c.JSON(http.StatusOK, "pong")
+		})
 	}
 	{
 		engine.LoadHTMLGlob("./cmd/templates/*")
