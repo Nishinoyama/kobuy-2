@@ -29,7 +29,7 @@ func FindUser(client *ent.UserClient, ctx context.Context, userId int) (*OneUser
 	if err != nil {
 		return nil, err
 	}
-	purchase, err := user.QueryPurchased().All(ctx)
+	purchase, err := user.QueryPurchased().WithGrocery().All(ctx)
 	if err != nil {
 		return nil, err
 	}

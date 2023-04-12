@@ -39,6 +39,10 @@ func main() {
 		}
 	}
 
+	userHandler := handler.UserHandler{Client: client.User}
+	groceryHandler := handler.GroceryHandler{Client: client.Grocery}
+	ledgerHandler := handler.LedgerHandler{Client: client.Ledger}
+
 	engine := gin.Default()
 	engine.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "pong")
@@ -46,12 +50,13 @@ func main() {
 
 	v1 := engine.Group("/v1/api")
 	{
-		v1.GET("/users", handler.GetUsersHandler(client.User))
-		v1.GET("/users/:id", handler.FindUserHandler(client.User))
-		v1.GET("/groceries", handler.GetGroceriesHandler(client.Grocery))
-		v1.GET("/ledger", handler.GetLedger(client))
-		v1.POST("/groceries/provide", handler.ProvideGroceryHandler(client.Grocery))
-		v1.POST("/groceries/purchase", handler.PurchaseGroceryHandler(client))
+		v1.GET("/users", userHandler.GetAll)
+		v1.GET("/users/:id", userHandler.Find)
+		v1.GET("/groceries", groceryHandler.GetAll)
+		v1.GET("/ledger", ledgerHandler.GetAll)
+
+		v1.POST("/groceries/provide", groceryHandler.Provide)
+		v1.POST("/purchase", handler.PurchaseGroceryHandler(client))
 		v1.POST("/ledger/cash", handler.CashLedgerHandler(client))
 	}
 	{
