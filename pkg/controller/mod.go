@@ -7,35 +7,6 @@ import (
 	"github.com/nishinoyama/kobuy-2/ent/ledger"
 )
 
-type SomeUsersResponse struct {
-	Users []*ent.User `json:"users"`
-}
-
-func GetAllUsers(client *ent.UserClient, ctx context.Context) (*SomeUsersResponse, error) {
-	users, err := client.Query().WithProvidedGroceries().WithPurchased().All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &SomeUsersResponse{users}, nil
-}
-
-type OneUserResponse struct {
-	User     *ent.User       `json:"user"`
-	Purchase []*ent.Purchase `json:"purchase"`
-}
-
-func FindUser(client *ent.UserClient, ctx context.Context, userId int) (*OneUserResponse, error) {
-	user, err := client.Get(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-	purchase, err := user.QueryPurchased().WithGrocery().All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &OneUserResponse{user, purchase}, nil
-}
-
 func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groceryId int, unit int) error {
 	buyer, err := client.User.Get(ctx, buyerId)
 	if err != nil {

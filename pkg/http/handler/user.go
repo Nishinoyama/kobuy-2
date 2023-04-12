@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/nishinoyama/kobuy-2/ent"
 	"github.com/nishinoyama/kobuy-2/pkg/controller"
@@ -10,27 +9,35 @@ import (
 )
 
 type UserHandler struct {
-	Client *ent.UserClient
+	Controller *controller.UserController
+}
+
+func NewUserHandler(r *gin.RouterGroup, uc *controller.UserController) {
+	handler := UserHandler{Controller: uc}
+
+	user := r.Group("/users")
+	{
+		user.GET("/", handler.GetAll)
+		user.GET("/:id", handler.Find)
+	}
 }
 
 func (h *UserHandler) GetAll(ctx *gin.Context) {
-	cc := context.Background()
-	users, err := controller.GetAllUsers(h.Client, cc)
+	res, err := h.Controller.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (h *UserHandler) Find(ctx *gin.Context) {
-	cc := context.Background()
 	userId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	u, err := controller.FindUser(h.Client, cc, userId)
+	res, err := h.Controller.Find(userId)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			ctx.JSON(http.StatusNotFound, err.Error())
@@ -39,5 +46,5 @@ func (h *UserHandler) Find(ctx *gin.Context) {
 		}
 		return
 	}
-	ctx.JSON(http.StatusOK, u)
+	ctx.JSON(http.StatusOK, res)
 }

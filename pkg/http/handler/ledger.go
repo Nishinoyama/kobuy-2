@@ -1,29 +1,29 @@
 package handler
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/ent/user"
+	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"net/http"
 )
 
 type LedgerHandler struct {
-	Client *ent.LedgerClient
+	LedgerController *controller.LedgerController
+}
+
+func NewLedgerHandler(r *gin.RouterGroup, lc *controller.LedgerController) {
+	handler := LedgerHandler{LedgerController: lc}
+
+	ledger := r.Group("/ledger")
+	{
+		ledger.GET("", handler.GetAll)
+	}
 }
 
 func (h *LedgerHandler) GetAll(ctx *gin.Context) {
-	cc := context.Background()
-	l, err := h.Client.Query().
-		WithReceiver(func(query *ent.UserQuery) {
-			query.Select(user.FieldName)
-		}).
-		WithPayer(func(query *ent.UserQuery) {
-			query.Select(user.FieldName)
-		}).All(cc)
+	res, err := h.LedgerController.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, l)
+	ctx.JSON(http.StatusOK, res)
 }

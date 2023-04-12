@@ -1,55 +1,65 @@
 package handler
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"net/http"
-	"time"
+	"strconv"
 )
 
 type GroceryHandler struct {
-	Client *ent.GroceryClient
+	Controller *controller.GroceryController
+}
+
+func NewGroceryHandler(r *gin.RouterGroup, gc *controller.GroceryController) {
+	handler := GroceryHandler{gc}
+
+	grocery := r.Group("/groceries")
+	{
+		grocery.GET("/", handler.GetAll)
+		grocery.GET("/:id", handler.Find)
+		grocery.POST("/provide", handler.Provide)
+	}
 }
 
 func (h *GroceryHandler) GetAll(ctx *gin.Context) {
-	cc := context.Background()
-	users, err := h.Client.Query().WithProvider().All(cc)
+	res, err := h.Controller.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, res)
 }
 
-type ProvideGroceryRequest struct {
-	ProviderId     int        `json:"provider_id,omitempty" binding:"required"`
-	Name           string     `json:"name,omitempty" binding:"required"`
-	Price          int        `json:"price,omitempty" binding:"required"`
-	Unit           int        `json:"unit,omitempty" binding:"required"`
-	ExpirationDate *time.Time `json:"expiration_date"`
+func (h *GroceryHandler) Find(ctx *gin.Context) {
+	groceryId, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	res, err := h.Controller.Find(groceryId)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			ctx.JSON(http.StatusNotFound, err.Error())
+		} else {
+			ctx.JSON(http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (h *GroceryHandler) Provide(ctx *gin.Context) {
-	cc := context.Background()
-	var req ProvideGroceryRequest
+	var req controller.GroceryProvideRequest
 	if err := ctx.BindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	g := h.Client.Create().
-		SetProviderID(req.ProviderId).
-		SetName(req.Name).
-		SetPrice(req.Price).
-		SetUnit(req.Unit)
-	if req.ExpirationDate != nil {
-		g.SetExpirationDate(*req.ExpirationDate)
-	}
-	if grocery, err := g.Save(cc); err != nil {
+	res, err := h.Controller.Provide(req)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, err.Error())
 		return
-	} else {
-		ctx.JSON(http.StatusOK, grocery)
-		return
 	}
+	ctx.JSON(http.StatusOK, res)
 }

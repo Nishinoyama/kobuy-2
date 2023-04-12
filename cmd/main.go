@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"github.com/nishinoyama/kobuy-2/pkg/http/handler"
+	"github.com/nishinoyama/kobuy-2/pkg/service"
 	"log"
 	"net/http"
 )
@@ -39,9 +41,13 @@ func main() {
 		}
 	}
 
-	userHandler := handler.UserHandler{Client: client.User}
-	groceryHandler := handler.GroceryHandler{Client: client.Grocery}
-	ledgerHandler := handler.LedgerHandler{Client: client.Ledger}
+	userService := service.UserService{UserClient: client.User}
+	groceryService := service.GroceryService{GroceryClient: client.Grocery}
+	ledgerService := service.LedgerService{LedgerClient: client.Ledger}
+
+	userController := controller.UserController{UserService: &userService}
+	groceryController := controller.GroceryController{GroceryService: &groceryService}
+	ledgerController := controller.LedgerController{LedgerService: ledgerService}
 
 	engine := gin.Default()
 	engine.GET("/ping", func(c *gin.Context) {
@@ -50,12 +56,10 @@ func main() {
 
 	v1 := engine.Group("/v1/api")
 	{
-		v1.GET("/users", userHandler.GetAll)
-		v1.GET("/users/:id", userHandler.Find)
-		v1.GET("/groceries", groceryHandler.GetAll)
-		v1.GET("/ledger", ledgerHandler.GetAll)
+		handler.NewUserHandler(v1, &userController)
+		handler.NewGroceryHandler(v1, &groceryController)
+		handler.NewLedgerHandler(v1, &ledgerController)
 
-		v1.POST("/groceries/provide", groceryHandler.Provide)
 		v1.POST("/purchase", handler.PurchaseGroceryHandler(client))
 		v1.POST("/ledger/cash", handler.CashLedgerHandler(client))
 	}
