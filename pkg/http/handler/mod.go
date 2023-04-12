@@ -15,8 +15,8 @@ type PurchaseGroceryRequest struct {
 	Unit      int `json:"unit"`
 }
 
-func PurchaseGroceryHandler(client *ent.Client) func(ctx *gin.Context) {
-	return func(gc *gin.Context) {
+func NewPurchaseGroceryHandler(r *gin.RouterGroup, client *ent.Client) {
+	r.POST("/purchase", func(gc *gin.Context) {
 		cc := context.Background()
 		var req PurchaseGroceryRequest
 		if err := gc.BindJSON(&req); err != nil {
@@ -28,7 +28,7 @@ func PurchaseGroceryHandler(client *ent.Client) func(ctx *gin.Context) {
 			return
 		}
 		gc.JSON(http.StatusOK, true)
-	}
+	})
 }
 
 type CashLedgerRequest struct {
@@ -37,8 +37,8 @@ type CashLedgerRequest struct {
 	Price      int `json:"price" binding:"required"`
 }
 
-func CashLedgerHandler(client *ent.Client) func(ctx *gin.Context) {
-	return func(gc *gin.Context) {
+func NewCashHandler(r *gin.RouterGroup, client *ent.Client) {
+	r.POST("/cash", func(gc *gin.Context) {
 		cc := context.Background()
 		var req CashLedgerRequest
 		err := gc.BindJSON(&req)
@@ -88,5 +88,5 @@ func CashLedgerHandler(client *ent.Client) func(ctx *gin.Context) {
 		}
 
 		gc.JSON(http.StatusOK, l)
-	}
+	})
 }

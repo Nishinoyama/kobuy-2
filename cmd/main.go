@@ -60,8 +60,8 @@ func main() {
 		handler.NewGroceryHandler(v1, &groceryController)
 		handler.NewLedgerHandler(v1, &ledgerController)
 
-		v1.POST("/purchase", handler.PurchaseGroceryHandler(client))
-		v1.POST("/ledger/cash", handler.CashLedgerHandler(client))
+		handler.NewPurchaseGroceryHandler(v1, client)
+		handler.NewCashHandler(v1, client)
 	}
 	{
 		engine.LoadHTMLGlob("./cmd/templates/*")

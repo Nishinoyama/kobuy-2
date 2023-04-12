@@ -11,6 +11,401 @@ Accept-Encoding: br,deflate,gzip,x-gzip
   "unit": 3
 }
 
+<> 2023-04-12T184913-5.200.json
+
+###
+
+POST http://localhost:8080/v1/api/groceries/provide
+Content-Type: application/json
+Content-Length: 74
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "provider_id": 1,
+  "name": "monaka",
+  "price" : 120,
+  "unit" : 10
+}
+
+<> 2023-04-12T184913-4.200.json
+
+###
+
+GET http://localhost:8080/v1/api/ledger
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184913-3.200.json
+
+###
+
+GET http://localhost:8080/v1/api/groceries
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184913-2.200.json
+
+###
+
+GET http://localhost:8080/v1/api/users
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184913-1.200.json
+
+###
+
+POST http://localhost:8080/v1/api/cash
+Content-Type: application/json
+Content-Length: 56
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "donor_id": 2,
+  "receiver_id": 1,
+  "price": 1020
+}
+
+<> 2023-04-12T184913.200.json
+
+###
+
+POST http://localhost:8080/v1/api/purchase
+Content-Type: application/json
+Content-Length: 51
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "buyer_id": 1,
+  "grocery_id": 3,
+  "unit": 3
+}
+
+<> 2023-04-12T184815.404.txt
+
+###
+
+POST http://localhost:8080/v1/api/groceries/provide
+Content-Type: application/json
+Content-Length: 74
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "provider_id": 1,
+  "name": "monaka",
+  "price" : 120,
+  "unit" : 10
+}
+
+<> 2023-04-12T184815-4.200.json
+
+###
+
+GET http://localhost:8080/v1/api/ledger
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184815-3.200.json
+
+###
+
+GET http://localhost:8080/v1/api/groceries
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184815-2.200.json
+
+###
+
+GET http://localhost:8080/v1/api/users
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184815-1.200.json
+
+###
+
+POST http://localhost:8080/v1/api/cash
+Content-Type: application/json
+Content-Length: 56
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "donor_id": 2,
+  "receiver_id": 1,
+  "price": 1020
+}
+
+<> 2023-04-12T184815.200.json
+
+###
+
+POST http://localhost:8080/v1/api/purchase
+Content-Type: application/json
+Content-Length: 51
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "buyer_id": 1,
+  "grocery_id": 3,
+  "unit": 3
+}
+
+<> 2023-04-12T184756-1.404.txt
+
+###
+
+POST http://localhost:8080/v1/api/groceries/provide
+Content-Type: application/json
+Content-Length: 74
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "provider_id": 1,
+  "name": "monaka",
+  "price" : 120,
+  "unit" : 10
+}
+
+<> 2023-04-12T184756-3.200.json
+
+###
+
+GET http://localhost:8080/v1/api/ledger
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184756-2.200.json
+
+###
+
+GET http://localhost:8080/v1/api/groceries
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184756-1.200.json
+
+###
+
+GET http://localhost:8080/v1/api/users
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184756.200.json
+
+###
+
+POST http://localhost:8080/v1/api/ledger/cash
+Content-Type: application/json
+Content-Length: 56
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "donor_id": 2,
+  "receiver_id": 1,
+  "price": 1020
+}
+
+<> 2023-04-12T184756.404.txt
+
+###
+
+POST http://localhost:8080/v1/api/purchase
+Content-Type: application/json
+Content-Length: 51
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "buyer_id": 1,
+  "grocery_id": 3,
+  "unit": 3
+}
+
+<> 2023-04-12T184746.500.json
+
+###
+
+POST http://localhost:8080/v1/api/groceries/provide
+Content-Type: application/json
+Content-Length: 74
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "provider_id": 1,
+  "name": "monaka",
+  "price" : 120,
+  "unit" : 10
+}
+
+<> 2023-04-12T184745-4.200.json
+
+###
+
+GET http://localhost:8080/v1/api/ledger
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184745-3.200.json
+
+###
+
+GET http://localhost:8080/v1/api/groceries
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184745-2.200.json
+
+###
+
+GET http://localhost:8080/v1/api/users
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184745-1.200.json
+
+###
+
+POST http://localhost:8080/v1/api/ledger/cash
+Content-Type: application/json
+Content-Length: 56
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "donor_id": 2,
+  "receiver_id": 1,
+  "price": 1020
+}
+
+<> 2023-04-12T184745.200.json
+
+###
+
+POST http://localhost:8080/v1/api/purchase
+Content-Type: application/json
+Content-Length: 51
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "buyer_id": 1,
+  "grocery_id": 3,
+  "unit": 3
+}
+
+<> 2023-04-12T184718-4.200.json
+
+###
+
+POST http://localhost:8080/v1/api/groceries/provide
+Content-Type: application/json
+Content-Length: 74
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "provider_id": 1,
+  "name": "monaka",
+  "price" : 120,
+  "unit" : 10
+}
+
+<> 2023-04-12T184718-3.200.json
+
+###
+
+GET http://localhost:8080/v1/api/ledger
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184718-2.200.json
+
+###
+
+GET http://localhost:8080/v1/api/groceries
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184718-1.200.json
+
+###
+
+GET http://localhost:8080/v1/api/users
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-12T184718.200.json
+
+###
+
+POST http://localhost:8080/v1/api/ledger/cash
+Content-Type: application/json
+Content-Length: 56
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "donor_id": 2,
+  "receiver_id": 1,
+  "price": 1020
+}
+
+<> 2023-04-12T184717.200.json
+
+###
+
+POST http://localhost:8080/v1/api/purchase
+Content-Type: application/json
+Content-Length: 51
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "buyer_id": 1,
+  "grocery_id": 3,
+  "unit": 3
+}
+
 <> 2023-04-12T183945-5.200.json
 
 ###
@@ -313,427 +708,6 @@ Accept-Encoding: br,deflate,gzip,x-gzip
 }
 
 <> 2023-04-12T164509.500.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164232.500.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164229.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 74
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 120,
-  "unit" : 10
-}
-
-<> 2023-04-12T164223.200.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164118.500.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164114.500.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164020.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T164009.404.txt
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 5
-}
-
-<> 2023-04-12T100250.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-12T100237.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184924.500.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184923.500.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184922-1.500.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184922.500.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184920.500.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184919.500.json
-
-###
-
-GET http://localhost:8080/v1/api/ledger
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T184909.200.json
-
-###
-
-GET http://localhost:8080/v1/api/ledger
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T184438.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T184433.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users/1
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T184427.200.json
-
-###
-
-POST http://localhost:8080/v1/api/ledger/cash
-Content-Type: application/json
-Content-Length: 56
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "donor_id": 2,
-  "receiver_id": 1,
-  "price": 1020
-}
-
-<> 2023-04-11T184424.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184419.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T184417.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users/1
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T183858.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users/1
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T183448.200.json
-
-###
-
-POST http://localhost:8080/v1/api/ledger/cash
-Content-Type: application/json
-Content-Length: 56
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "donor_id": 2,
-  "receiver_id": 1,
-  "price": 1020
-}
-
-<> 2023-04-11T183441.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users/1
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-11T183316.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T183257.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-11T183254.200.json
 
 ###
 
