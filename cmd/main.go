@@ -40,6 +40,10 @@ func main() {
 	}
 
 	engine := gin.Default()
+	engine.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, "pong")
+	})
+
 	v1 := engine.Group("/v1/api")
 	{
 		v1.GET("/users", handler.GetUsersHandler(client.User))
