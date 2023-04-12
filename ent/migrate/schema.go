@@ -66,8 +66,8 @@ var (
 		{Name: "price", Type: field.TypeInt},
 		{Name: "amount", Type: field.TypeInt},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "grocery_purchased", Type: field.TypeInt, Nullable: true},
-		{Name: "user_purchased", Type: field.TypeInt, Nullable: true},
+		{Name: "grocery_purchased", Type: field.TypeInt},
+		{Name: "user_purchased", Type: field.TypeInt},
 	}
 	// PurchasesTable holds the schema information for the "purchases" table.
 	PurchasesTable = &schema.Table{
@@ -79,13 +79,13 @@ var (
 				Symbol:     "purchases_groceries_purchased",
 				Columns:    []*schema.Column{PurchasesColumns[4]},
 				RefColumns: []*schema.Column{GroceriesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "purchases_users_purchased",
 				Columns:    []*schema.Column{PurchasesColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}

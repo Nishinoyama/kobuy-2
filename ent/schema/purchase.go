@@ -24,7 +24,7 @@ func (Purchase) Fields() []ent.Field {
 // Edges of the Purchase.
 func (Purchase) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("buyer", User.Type).Ref("purchased").Unique(),
-		edge.From("grocery", Grocery.Type).Ref("purchased").Unique(),
+		edge.From("buyer", User.Type).Ref("purchased").Unique().Required(),
+		edge.From("grocery", Grocery.Type).Ref("purchased").Unique().Required(),
 	}
 }

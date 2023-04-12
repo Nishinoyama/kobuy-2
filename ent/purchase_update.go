@@ -61,14 +61,6 @@ func (pu *PurchaseUpdate) SetBuyerID(id int) *PurchaseUpdate {
 	return pu
 }
 
-// SetNillableBuyerID sets the "buyer" edge to the User entity by ID if the given value is not nil.
-func (pu *PurchaseUpdate) SetNillableBuyerID(id *int) *PurchaseUpdate {
-	if id != nil {
-		pu = pu.SetBuyerID(*id)
-	}
-	return pu
-}
-
 // SetBuyer sets the "buyer" edge to the User entity.
 func (pu *PurchaseUpdate) SetBuyer(u *User) *PurchaseUpdate {
 	return pu.SetBuyerID(u.ID)
@@ -77,14 +69,6 @@ func (pu *PurchaseUpdate) SetBuyer(u *User) *PurchaseUpdate {
 // SetGroceryID sets the "grocery" edge to the Grocery entity by ID.
 func (pu *PurchaseUpdate) SetGroceryID(id int) *PurchaseUpdate {
 	pu.mutation.SetGroceryID(id)
-	return pu
-}
-
-// SetNillableGroceryID sets the "grocery" edge to the Grocery entity by ID if the given value is not nil.
-func (pu *PurchaseUpdate) SetNillableGroceryID(id *int) *PurchaseUpdate {
-	if id != nil {
-		pu = pu.SetGroceryID(*id)
-	}
 	return pu
 }
 
@@ -148,6 +132,12 @@ func (pu *PurchaseUpdate) check() error {
 		if err := purchase.AmountValidator(v); err != nil {
 			return &ValidationError{Name: "amount", err: fmt.Errorf(`ent: validator failed for field "Purchase.amount": %w`, err)}
 		}
+	}
+	if _, ok := pu.mutation.BuyerID(); pu.mutation.BuyerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Purchase.buyer"`)
+	}
+	if _, ok := pu.mutation.GroceryID(); pu.mutation.GroceryCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Purchase.grocery"`)
 	}
 	return nil
 }
@@ -286,14 +276,6 @@ func (puo *PurchaseUpdateOne) SetBuyerID(id int) *PurchaseUpdateOne {
 	return puo
 }
 
-// SetNillableBuyerID sets the "buyer" edge to the User entity by ID if the given value is not nil.
-func (puo *PurchaseUpdateOne) SetNillableBuyerID(id *int) *PurchaseUpdateOne {
-	if id != nil {
-		puo = puo.SetBuyerID(*id)
-	}
-	return puo
-}
-
 // SetBuyer sets the "buyer" edge to the User entity.
 func (puo *PurchaseUpdateOne) SetBuyer(u *User) *PurchaseUpdateOne {
 	return puo.SetBuyerID(u.ID)
@@ -302,14 +284,6 @@ func (puo *PurchaseUpdateOne) SetBuyer(u *User) *PurchaseUpdateOne {
 // SetGroceryID sets the "grocery" edge to the Grocery entity by ID.
 func (puo *PurchaseUpdateOne) SetGroceryID(id int) *PurchaseUpdateOne {
 	puo.mutation.SetGroceryID(id)
-	return puo
-}
-
-// SetNillableGroceryID sets the "grocery" edge to the Grocery entity by ID if the given value is not nil.
-func (puo *PurchaseUpdateOne) SetNillableGroceryID(id *int) *PurchaseUpdateOne {
-	if id != nil {
-		puo = puo.SetGroceryID(*id)
-	}
 	return puo
 }
 
@@ -386,6 +360,12 @@ func (puo *PurchaseUpdateOne) check() error {
 		if err := purchase.AmountValidator(v); err != nil {
 			return &ValidationError{Name: "amount", err: fmt.Errorf(`ent: validator failed for field "Purchase.amount": %w`, err)}
 		}
+	}
+	if _, ok := puo.mutation.BuyerID(); puo.mutation.BuyerCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Purchase.buyer"`)
+	}
+	if _, ok := puo.mutation.GroceryID(); puo.mutation.GroceryCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Purchase.grocery"`)
 	}
 	return nil
 }

@@ -54,14 +54,6 @@ func (pc *PurchaseCreate) SetBuyerID(id int) *PurchaseCreate {
 	return pc
 }
 
-// SetNillableBuyerID sets the "buyer" edge to the User entity by ID if the given value is not nil.
-func (pc *PurchaseCreate) SetNillableBuyerID(id *int) *PurchaseCreate {
-	if id != nil {
-		pc = pc.SetBuyerID(*id)
-	}
-	return pc
-}
-
 // SetBuyer sets the "buyer" edge to the User entity.
 func (pc *PurchaseCreate) SetBuyer(u *User) *PurchaseCreate {
 	return pc.SetBuyerID(u.ID)
@@ -70,14 +62,6 @@ func (pc *PurchaseCreate) SetBuyer(u *User) *PurchaseCreate {
 // SetGroceryID sets the "grocery" edge to the Grocery entity by ID.
 func (pc *PurchaseCreate) SetGroceryID(id int) *PurchaseCreate {
 	pc.mutation.SetGroceryID(id)
-	return pc
-}
-
-// SetNillableGroceryID sets the "grocery" edge to the Grocery entity by ID if the given value is not nil.
-func (pc *PurchaseCreate) SetNillableGroceryID(id *int) *PurchaseCreate {
-	if id != nil {
-		pc = pc.SetGroceryID(*id)
-	}
 	return pc
 }
 
@@ -147,6 +131,12 @@ func (pc *PurchaseCreate) check() error {
 	}
 	if _, ok := pc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Purchase.created_at"`)}
+	}
+	if _, ok := pc.mutation.BuyerID(); !ok {
+		return &ValidationError{Name: "buyer", err: errors.New(`ent: missing required edge "Purchase.buyer"`)}
+	}
+	if _, ok := pc.mutation.GroceryID(); !ok {
+		return &ValidationError{Name: "grocery", err: errors.New(`ent: missing required edge "Purchase.grocery"`)}
 	}
 	return nil
 }
