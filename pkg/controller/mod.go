@@ -2,62 +2,26 @@ package controller
 
 import (
 	"context"
-	"errors"
 	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/ent/ledger"
+	"github.com/nishinoyama/kobuy-2/pkg/service"
 )
 
-func PurchaseGrocery(client *ent.Client, ctx context.Context, buyerId int, groceryId int, unit int) error {
-	buyer, err := client.User.Get(ctx, buyerId)
-	if err != nil {
-		return err
-	}
-	grocery, err := client.Grocery.Get(ctx, groceryId)
-	if err != nil {
-		return err
-	}
-	seller, err := grocery.QueryProvider().First(ctx)
-	if err != nil {
-		return err
-	}
-	price := grocery.Price * unit
+type PurchaseGroceryRequest struct {
+	BuyerId   int `json:"buyer_id" binding:"required"`
+	GroceryId int `json:"grocery_id" binding:"required"`
+	Unit      int `json:"unit" binding:"required"`
+}
 
-	tx, err := client.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	if err := tx.Purchase.Create().SetPrice(grocery.Price).SetAmount(unit).SetBuyer(buyer).SetGrocery(grocery).Exec(ctx); err != nil {
-		if tx.Rollback() != nil {
-			return errors.New("roll back failed")
-		}
-		return err
-	}
-	if err := tx.Grocery.UpdateOne(grocery).SetUnit(grocery.Unit - unit).Exec(ctx); err != nil {
-		if tx.Rollback() != nil {
-			return errors.New("roll back failed")
-		}
-		return err
-	}
-	if err := tx.User.UpdateOne(buyer).AddBalance(-price).Exec(ctx); err != nil {
-		if tx.Rollback() != nil {
-			return errors.New("roll back failed")
-		}
-		return err
-	}
-	if err := tx.User.UpdateOne(seller).AddBalance(price).Exec(ctx); err != nil {
-		if tx.Rollback() != nil {
-			return errors.New("roll back failed")
-		}
-		return err
-	}
-	if err := tx.Ledger.Create().SetPayer(buyer).SetReceiver(seller).SetPrice(price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
-		if tx.Rollback() != nil {
-			return errors.New("roll back failed")
-		}
-		return err
-	}
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+func Purchase(client *ent.Client, req PurchaseGroceryRequest) error {
+	return service.Purchase(context.TODO(), client, req.BuyerId, req.GroceryId, req.Unit)
+}
+
+type CashLedgerRequest struct {
+	DonorId    int `json:"donor_id" binding:"required"`
+	ReceiverId int `json:"receiver_id" binding:"required"`
+	Price      int `json:"price" binding:"required"`
+}
+
+func Cash(client *ent.Client, req CashLedgerRequest) (*ent.Ledger, error) {
+	return service.Cash(context.TODO(), client, req.DonorId, req.ReceiverId, req.Price)
 }

@@ -57,7 +57,7 @@ func main() {
 		handler.NewGroceryHandler(v1, &groceryController)
 		handler.NewLedgerHandler(v1, &ledgerController)
 
-		handler.NewPurchaseGroceryHandler(v1, client)
+		handler.NewPurchaseHandler(v1, client)
 		handler.NewCashHandler(v1, client)
 
 		v1.GET("/ping", func(c *gin.Context) {
