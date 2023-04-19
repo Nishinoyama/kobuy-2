@@ -31,9 +31,7 @@ func (s *GroceryService) Provide(ctx context.Context, req GroceryProvideRequest)
 		SetProviderID(req.ProviderId).
 		SetName(req.Name).
 		SetPrice(req.Price).
-		SetUnit(req.Unit)
-	if req.ExpirationDate != nil {
-		g.SetExpirationDate(*req.ExpirationDate)
-	}
+		SetUnit(req.Unit).
+		SetNillableExpirationDate(req.ExpirationDate)
 	return g.Save(ctx)
 }
