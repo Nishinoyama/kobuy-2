@@ -20,6 +20,9 @@ func NewGroceryHandler(r *gin.RouterGroup, gc *controller.GroceryController) {
 		grocery.GET("/", handler.GetAll)
 		grocery.GET("/:id", handler.Find)
 		grocery.POST("/provide", handler.Provide)
+		grocery.OPTIONS("/provide", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusNoContent, true)
+		})
 	}
 }
 

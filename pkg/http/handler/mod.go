@@ -20,6 +20,9 @@ func NewPurchaseHandler(r *gin.RouterGroup, client *ent.Client) {
 		}
 		gc.JSON(http.StatusOK, true)
 	})
+	r.OPTIONS("/purchase", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNoContent, true)
+	})
 }
 
 func NewCashHandler(r *gin.RouterGroup, client *ent.Client) {

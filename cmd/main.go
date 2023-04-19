@@ -3,17 +3,37 @@ package main
 import (
 	"context"
 	"entgo.io/ent/dialect"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/nishinoyama/kobuy-2/ent"
 	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"github.com/nishinoyama/kobuy-2/pkg/http/handler"
 	"github.com/nishinoyama/kobuy-2/pkg/service"
+	"gopkg.in/yaml.v3"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
+type Configure struct {
+	CorsOrigins []string `yaml:"corsOrigins"`
+}
+
 func main() {
+	configFile, err := os.Open("config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var config Configure
+	if err := yaml.NewDecoder(configFile).Decode(&config); err != nil {
+		log.Fatal(err)
+	}
+	if err := configFile.Close(); err != nil {
+		log.Fatal(err)
+	}
+
 	client, err := ent.Open(dialect.SQLite, "file:ent?mode=memory&cache=shared&_fk=1")
 	if err != nil {
 		log.Fatal(err)
@@ -52,6 +72,20 @@ func main() {
 	engine := gin.Default()
 
 	v1 := engine.Group("/v1/api")
+	v1.Use(cors.New(cors.Config{
+		AllowOrigins:     config.CorsOrigins,
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowCredentials: true,
+		AllowHeaders: []string{
+			"Access-Control-Allow-Credentials",
+			"Access-Control-Allow-Headers",
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"Authorization",
+		},
+		MaxAge: 24 * time.Hour,
+	}))
 	{
 		handler.NewUserHandler(v1, &userController)
 		handler.NewGroceryHandler(v1, &groceryController)
