@@ -14,7 +14,7 @@ type GroceryController struct {
 type GroceryProvideRequest struct {
 	ProviderId     int        `json:"provider_id,omitempty" binding:"required"`
 	Name           string     `json:"name,omitempty" binding:"required"`
-	Price          int        `json:"price,omitempty" binding:"required"`
+	Price          *int       `json:"price,omitempty" binding:"required"`
 	Unit           int        `json:"unit,omitempty" binding:"required"`
 	ExpirationDate *time.Time `json:"expiration_date"`
 }
@@ -47,7 +47,7 @@ func (c *GroceryController) Provide(req GroceryProvideRequest) (*OneGroceriesRes
 	grocery, err := c.GroceryService.Provide(context.TODO(), service.GroceryProvideRequest{
 		ProviderId:     req.ProviderId,
 		Name:           req.Name,
-		Price:          req.Price,
+		Price:          *req.Price,
 		Unit:           req.Unit,
 		ExpirationDate: req.ExpirationDate,
 	})
