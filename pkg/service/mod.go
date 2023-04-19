@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"errors"
-	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/ent/ledger"
+	"github.com/nishinoyama/kobuy-2/pkg/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/ent/ledger"
 )
 
 func Purchase(ctx context.Context, client *ent.Client, buyerId int, groceryId int, unit int) error {

@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/ent"
 )
 
 type UserService struct {

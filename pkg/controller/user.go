@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"github.com/nishinoyama/kobuy-2/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/ent"
 	"github.com/nishinoyama/kobuy-2/pkg/service"
 )
 

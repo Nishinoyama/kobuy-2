@@ -2,8 +2,8 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/nishinoyama/kobuy-2/ent"
 	"github.com/nishinoyama/kobuy-2/pkg/controller"
+	"github.com/nishinoyama/kobuy-2/pkg/ent"
 	"net/http"
 )
 
