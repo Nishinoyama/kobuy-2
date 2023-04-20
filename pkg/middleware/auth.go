@@ -8,14 +8,19 @@ import (
 
 const UserKey = "user"
 
-func AuthRequiredMiddleware() gin.HandlerFunc {
+func AuthMiddleware(authIsRequired bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		user := session.Get(UserKey)
-		if user == nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+		userId := session.Get(UserKey)
+		if userId == nil {
+			if authIsRequired {
+				c.AbortWithStatus(http.StatusUnauthorized)
+				return
+			}
+			c.Next()
 			return
 		}
+		c.Set("user_id", userId)
 		c.Next()
 	}
 }

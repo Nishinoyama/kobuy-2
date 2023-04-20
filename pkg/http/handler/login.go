@@ -26,13 +26,12 @@ func LoginHandler(r *gin.Engine, uc *ent.UserClient) {
 	})
 	r.GET("/logout", logout())
 
-	private := r.Group("/private")
-	private.Use(middleware.AuthRequiredMiddleware())
+	private := r.Group("/authed")
+	private.Use(middleware.AuthMiddleware(true))
 	{
 		private.GET("/me", func(c *gin.Context) {
-			session := sessions.Default(c)
-			u := session.Get(middleware.UserKey)
-			c.JSON(http.StatusOK, gin.H{"user": u})
+			userId := c.GetInt("user_id")
+			c.JSON(http.StatusOK, gin.H{"user_id": userId})
 		})
 	}
 }
@@ -55,12 +54,12 @@ func login(uc *ent.UserClient) func(c *gin.Context) {
 			}
 		}
 		session := sessions.Default(c)
-		session.Set(middleware.UserKey, req.UserName)
+		session.Set(middleware.UserKey, u.ID)
 		if err := session.Save(); err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
-		c.JSON(http.StatusOK, u.Name)
+		c.JSON(http.StatusOK, gin.H{"user_id": u.ID})
 	}
 }
 

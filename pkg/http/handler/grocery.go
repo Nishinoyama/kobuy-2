@@ -22,7 +22,7 @@ func NewGroceryHandler(r *gin.RouterGroup, gc *controller.GroceryController) {
 		grocery.GET("/:id", handler.Find)
 
 		authed := grocery.Group("")
-		authed.Use(middleware.AuthRequiredMiddleware())
+		authed.Use(middleware.AuthMiddleware(true))
 		{
 			authed.POST("/provide", handler.Provide)
 			authed.OPTIONS("/provide", func(ctx *gin.Context) {
