@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nishinoyama/kobuy-2/pkg/controller"
 	"github.com/nishinoyama/kobuy-2/pkg/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/middleware"
 	"net/http"
 	"strconv"
 )
@@ -19,10 +20,15 @@ func NewGroceryHandler(r *gin.RouterGroup, gc *controller.GroceryController) {
 	{
 		grocery.GET("/", handler.GetAll)
 		grocery.GET("/:id", handler.Find)
-		grocery.POST("/provide", handler.Provide)
-		grocery.OPTIONS("/provide", func(ctx *gin.Context) {
-			ctx.JSON(http.StatusNoContent, true)
-		})
+
+		authed := grocery.Group("")
+		authed.Use(middleware.AuthRequiredMiddleware())
+		{
+			authed.POST("/provide", handler.Provide)
+			authed.OPTIONS("/provide", func(ctx *gin.Context) {
+				ctx.JSON(http.StatusNoContent, true)
+			})
+		}
 	}
 }
 

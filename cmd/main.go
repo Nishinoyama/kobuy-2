@@ -52,10 +52,11 @@ func main() {
 			log.Fatal(err)
 		}
 		if err := client.Grocery.CreateBulk(
-			client.Grocery.Create().SetProviderID(1).SetName("choco").SetPrice(120).SetUnit(23),
-			client.Grocery.Create().SetProviderID(1).SetName("vanilla").SetPrice(110).SetUnit(23),
-			client.Grocery.Create().SetProviderID(2).SetName("mow").SetPrice(170).SetUnit(8),
+			client.Grocery.Create().SetProviderID(1).SetName("choco").SetPrice(120).SetUnit(23).SetExpirationDate(time.Now().AddDate(10, 0, 0)),
+			client.Grocery.Create().SetProviderID(1).SetName("vanilla").SetPrice(110).SetUnit(23).SetExpirationDate(time.Now().AddDate(0, -1, 0)),
+			client.Grocery.Create().SetProviderID(2).SetName("mow").SetPrice(170).SetUnit(8).SetExpirationDate(time.Now().AddDate(0, 0, 3)),
 			client.Grocery.Create().SetProviderID(2).SetName("shiro").SetPrice(320).SetUnit(3),
+			client.Grocery.Create().SetProviderID(1).SetName("smile").SetPrice(0).SetUnit(9999).SetExpirationDate(time.Now().AddDate(1000, 0, 0)),
 		).Exec(context.TODO()); err != nil {
 			log.Fatal(err)
 		}
@@ -70,9 +71,7 @@ func main() {
 	ledgerController := controller.LedgerController{LedgerService: ledgerService}
 
 	engine := gin.Default()
-
-	v1 := engine.Group("/v1/api")
-	v1.Use(cors.New(cors.Config{
+	engine.Use(cors.New(cors.Config{
 		AllowOrigins:     config.CorsOrigins,
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
@@ -86,6 +85,10 @@ func main() {
 		},
 		MaxAge: 24 * time.Hour,
 	}))
+
+	handler.LoginHandler(engine, client.User)
+
+	v1 := engine.Group("/v1/api")
 	{
 		handler.NewUserHandler(v1, &userController)
 		handler.NewGroceryHandler(v1, &groceryController)
