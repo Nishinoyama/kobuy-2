@@ -29,9 +29,17 @@ func LoginHandler(r *gin.Engine, uc *ent.UserClient) {
 	private := r.Group("/authed")
 	private.Use(middleware.AuthMiddleware(true))
 	{
-		private.GET("/me", func(c *gin.Context) {
-			userId := c.GetInt("user_id")
-			c.JSON(http.StatusOK, gin.H{"user_id": userId})
+		private.GET("/", authed())
+	}
+}
+
+func authed() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		userId := c.MustGet("user_id")
+		userName := c.MustGet("user_name")
+		c.JSON(http.StatusOK, gin.H{
+			"user_id":   userId,
+			"user_name": userName,
 		})
 	}
 }
@@ -54,7 +62,8 @@ func login(uc *ent.UserClient) func(c *gin.Context) {
 			}
 		}
 		session := sessions.Default(c)
-		session.Set(middleware.UserKey, u.ID)
+		session.Set(middleware.UserNameKey, u.Name)
+		session.Set(middleware.UserIdKey, u.ID)
 		if err := session.Save(); err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
