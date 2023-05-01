@@ -28,6 +28,12 @@ func (uc *UserCreate) SetName(s string) *UserCreate {
 	return uc
 }
 
+// SetUserID sets the "user_id" field.
+func (uc *UserCreate) SetUserID(s string) *UserCreate {
+	uc.mutation.SetUserID(s)
+	return uc
+}
+
 // SetPassword sets the "password" field.
 func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	uc.mutation.SetPassword(s)
@@ -154,6 +160,9 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
 	}
+	if _, ok := uc.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "User.user_id"`)}
+	}
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
 	}
@@ -189,6 +198,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := uc.mutation.UserID(); ok {
+		_spec.SetField(user.FieldUserID, field.TypeString, value)
+		_node.UserID = value
 	}
 	if value, ok := uc.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)

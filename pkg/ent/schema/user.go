@@ -15,6 +15,7 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
+		field.String("user_id").Unique(),
 		field.String("password").Sensitive(),
 		field.Int("balance").Default(0).StructTag(`json:"balance"`),
 	}

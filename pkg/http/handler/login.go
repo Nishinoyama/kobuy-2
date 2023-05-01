@@ -53,7 +53,7 @@ func login(uc *ent.UserClient) func(c *gin.Context) {
 		}
 		u, err := uc.Query().Where(
 			user.And(
-				user.NameEQ(req.UserName),
+				user.UserIDEQ(req.UserName),
 				user.PasswordEQ(req.Password),
 			),
 		).First(context.TODO())

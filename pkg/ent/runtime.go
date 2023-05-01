@@ -54,7 +54,7 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescBalance is the schema descriptor for balance field.
-	userDescBalance := userFields[2].Descriptor()
+	userDescBalance := userFields[3].Descriptor()
 	// user.DefaultBalance holds the default value on creation for the balance field.
 	user.DefaultBalance = userDescBalance.Default.(int)
 }
