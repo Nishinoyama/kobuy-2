@@ -1,3 +1,7 @@
 corsOrigins:
   - "http://localhost:3000"
   - "http://localhost:8080"
+defaultUsers:
+  - ["太郎", "taro", "taro"]
+  - ["次郎", "jiro", "taro"]
+  - ["三郎", "saro", "taro"]

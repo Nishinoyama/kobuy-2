@@ -18,7 +18,8 @@ import (
 )
 
 type Configure struct {
-	CorsOrigins []string `yaml:"corsOrigins"`
+	CorsOrigins  []string   `yaml:"corsOrigins"`
+	DefaultUsers [][]string `yaml:"defaultUsers"`
 }
 
 func main() {
@@ -44,11 +45,11 @@ func main() {
 
 	{
 		// seeding
-		if err := client.User.CreateBulk(
-			client.User.Create().SetName("taro").SetPassword("taro"),
-			client.User.Create().SetName("jiro").SetPassword("jiro"),
-			client.User.Create().SetName("saro").SetPassword("saro"),
-		).Exec(context.TODO()); err != nil {
+		users := make([]*ent.UserCreate, 0, 3)
+		for _, user := range config.DefaultUsers {
+			users = append(users, client.User.Create().SetName(user[0]).SetUserID(user[1]).SetPassword(user[2]))
+		}
+		if err := client.User.CreateBulk(users...).Exec(context.TODO()); !ent.IsValidationError(err) && err != nil {
 			log.Fatal(err)
 		}
 		if err := client.Grocery.CreateBulk(
