@@ -22,7 +22,7 @@ import (
 type UserQuery struct {
 	config
 	ctx                   *QueryContext
-	order                 []OrderFunc
+	order                 []user.OrderOption
 	inters                []Interceptor
 	predicates            []predicate.User
 	withProvidedGroceries *GroceryQuery
@@ -60,7 +60,7 @@ func (uq *UserQuery) Unique(unique bool) *UserQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (uq *UserQuery) Order(o ...OrderFunc) *UserQuery {
+func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	uq.order = append(uq.order, o...)
 	return uq
 }
@@ -342,7 +342,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 	return &UserQuery{
 		config:                uq.config,
 		ctx:                   uq.ctx.Clone(),
-		order:                 append([]OrderFunc{}, uq.order...),
+		order:                 append([]user.OrderOption{}, uq.order...),
 		inters:                append([]Interceptor{}, uq.inters...),
 		predicates:            append([]predicate.User{}, uq.predicates...),
 		withProvidedGroceries: uq.withProvidedGroceries.Clone(),
@@ -545,7 +545,7 @@ func (uq *UserQuery) loadProvidedGroceries(ctx context.Context, query *GroceryQu
 	}
 	query.withFKs = true
 	query.Where(predicate.Grocery(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.ProvidedGroceriesColumn, fks...))
+		s.Where(sql.InValues(s.C(user.ProvidedGroceriesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -576,7 +576,7 @@ func (uq *UserQuery) loadPurchased(ctx context.Context, query *PurchaseQuery, no
 	}
 	query.withFKs = true
 	query.Where(predicate.Purchase(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.PurchasedColumn, fks...))
+		s.Where(sql.InValues(s.C(user.PurchasedColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -607,7 +607,7 @@ func (uq *UserQuery) loadPayer(ctx context.Context, query *LedgerQuery, nodes []
 	}
 	query.withFKs = true
 	query.Where(predicate.Ledger(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.PayerColumn, fks...))
+		s.Where(sql.InValues(s.C(user.PayerColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -638,7 +638,7 @@ func (uq *UserQuery) loadReceiver(ctx context.Context, query *LedgerQuery, nodes
 	}
 	query.withFKs = true
 	query.Where(predicate.Ledger(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.ReceiverColumn, fks...))
+		s.Where(sql.InValues(s.C(user.ReceiverColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

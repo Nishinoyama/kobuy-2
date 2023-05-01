@@ -7,8 +7,8 @@ import (
 	"github.com/go-faker/faker/v4"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/nishinoyama/kobuy-2/ent"
-	"github.com/nishinoyama/kobuy-2/ent/ledger"
+	"github.com/nishinoyama/kobuy-2/pkg/ent"
+	"github.com/nishinoyama/kobuy-2/pkg/ent/ledger"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -87,7 +87,7 @@ func TestMainKobuy2InMemory(t *testing.T) {
 				}
 				t.Fatal(err)
 			}
-			if err := tx.Ledger.Create().SetDonor(buyer).SetReceiver(seller).SetPrice(g.Price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
+			if err := tx.Ledger.Create().SetPayer(buyer).SetReceiver(seller).SetPrice(g.Price).SetType(ledger.TypePurchase).Exec(ctx); err != nil {
 				if tx.Rollback() != nil {
 					t.Fatal("what")
 				}

@@ -4,6 +4,9 @@ package grocery
 
 import (
 	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -86,3 +89,71 @@ var (
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt time.Time
 )
+
+// OrderOption defines the ordering options for the Grocery queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByPrice orders the results by the price field.
+func ByPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrice, opts...).ToFunc()
+}
+
+// ByUnit orders the results by the unit field.
+func ByUnit(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUnit, opts...).ToFunc()
+}
+
+// ByExpirationDate orders the results by the expiration_date field.
+func ByExpirationDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExpirationDate, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByProviderField orders the results by provider field.
+func ByProviderField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProviderStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByPurchasedCount orders the results by purchased count.
+func ByPurchasedCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPurchasedStep(), opts...)
+	}
+}
+
+// ByPurchased orders the results by purchased terms.
+func ByPurchased(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPurchasedStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProviderStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProviderInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProviderTable, ProviderColumn),
+	)
+}
+func newPurchasedStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PurchasedInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PurchasedTable, PurchasedColumn),
+	)
+}

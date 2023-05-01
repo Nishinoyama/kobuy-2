@@ -204,11 +204,7 @@ func HasBuyer() predicate.Purchase {
 // HasBuyerWith applies the HasEdge predicate on the "buyer" edge with a given conditions (other predicates).
 func HasBuyerWith(preds ...predicate.User) predicate.Purchase {
 	return predicate.Purchase(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(BuyerInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, BuyerTable, BuyerColumn),
-		)
+		step := newBuyerStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -231,11 +227,7 @@ func HasGrocery() predicate.Purchase {
 // HasGroceryWith applies the HasEdge predicate on the "grocery" edge with a given conditions (other predicates).
 func HasGroceryWith(preds ...predicate.Grocery) predicate.Purchase {
 	return predicate.Purchase(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(GroceryInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, GroceryTable, GroceryColumn),
-		)
+		step := newGroceryStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -4,6 +4,9 @@ package ledger
 
 import (
 	"fmt"
+
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -88,4 +91,50 @@ func TypeValidator(_type Type) error {
 	default:
 		return fmt.Errorf("ledger: invalid enum value for type field: %q", _type)
 	}
+}
+
+// OrderOption defines the ordering options for the Ledger queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByPrice orders the results by the price field.
+func ByPrice(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPrice, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByPayerField orders the results by payer field.
+func ByPayerField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPayerStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByReceiverField orders the results by receiver field.
+func ByReceiverField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReceiverStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newPayerStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PayerInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, PayerTable, PayerColumn),
+	)
+}
+func newReceiverStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReceiverInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ReceiverTable, ReceiverColumn),
+	)
 }

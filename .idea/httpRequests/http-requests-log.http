@@ -1,3 +1,470 @@
+GET http://localhost:8080/authed/
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NTY5N3xEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ87svBGIJGIDavNvqPgPnxq-rdqpEJofaYYDysf-JcSCw=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T111950.200.json
+
+###
+
+GET http://localhost:8080/authed/
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NTY5N3xEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ87svBGIJGIDavNvqPgPnxq-rdqpEJofaYYDysf-JcSCw=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T105459.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDk2MHxEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ8H3MezO_YNuC8bI3oeFwLbGuVyhRD63MgH2l-hF-4vOU=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T105457.200.json
+
+###
+
+GET http://localhost:8080/authed/
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDk2MHxEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ8H3MezO_YNuC8bI3oeFwLbGuVyhRD63MgH2l-hF-4vOU=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T105448.404.txt
+
+###
+
+GET http://localhost:8080/authed/
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDk2MHxEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ8H3MezO_YNuC8bI3oeFwLbGuVyhRD63MgH2l-hF-4vOU=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T105315.404.txt
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDk2MHxEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUlHYzNSeWFXNW5EQWtBQjNWelpYSmZhV1FEYVc1MEJBSUFCQVp6ZEhKcGJtY01Dd0FKZFhObGNsOXVZVzFsQm5OMGNtbHVad3dHQUFScWFYSnZ8H3MezO_YNuC8bI3oeFwLbGuVyhRD63MgH2l-hF-4vOU=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104242.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T104240.200.json
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T104229.200.json
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104225.200.json
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104218.200.json
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104134.200.json
+
+###
+
+GET http://localhost:8080/authed/id
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104110.200.json
+
+###
+
+GET http://localhost:8080/authed/name
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104104.200.json
+
+###
+
+GET http://localhost:8080/authed/me
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDg1MHxEdi1CQkFFQ180SUFBUkFCRUFBQVdQLUNBQU1HYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBWnpkSEpwYm1jTUN3QUpkWE5sY2w5dVlXMWxCbk4wY21sdVp3d0dBQVJxYVhKdkJuTjBjbWx1Wnd3SkFBZDFjMlZ5WDJsa0EybHVkQVFDQUFRPXzwOSsbQwPPk5zKX_8hj0OTtugiyl4vbEJtN2YpcF3cLg==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T104054.404.txt
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T104050.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103954.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103858.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103851.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103836.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103828.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103819.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103650.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1NDU4MnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT186UU_Dr-smplgdaAexB28r4p-Zi1YaJ9vayQFJf4U0fE=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103639.500.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzU4M3xEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18f3KfjeK5RrL_Ofp24A83rDCIOGMOUyxAGR3zwUiWoCo=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T103622.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzU3OHxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18YCwU0OBfxmB5NptNzcYTUAzwxR_Am3z4Pych2C25_5o=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T101943.200.json
+
+###
+
+GET http://localhost:8080/authed/me
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzU3OHxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18YCwU0OBfxmB5NptNzcYTUAzwxR_Am3z4Pych2C25_5o=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T101940.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzU2NnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT184luPx9Nputu2GiCgSFtpeGGSqxok3Ap5rN0pitexd9o=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T101938.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzUxNnxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18h3dn31jFeaQyHLksdc2BEoEaRar0s-fDfGwFSqI8E8A=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T101926.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzUwOHxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18hlNr46I25JCaB1WcYSo7bH3Kl59P2Ca4cLsptSEJxNc=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T101836.200.json
+
+###
+
+GET http://localhost:8080/authed/me
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MzUwOHxEdi1CQkFFQ180SUFBUkFCRUFBQUdfLUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSURhVzUwQkFJQUJBPT18hlNr46I25JCaB1WcYSo7bH3Kl59P2Ca4cLsptSEJxNc=
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T101831.200.json
+
+###
+
+POST http://localhost:8080/login
+Content-Type: application/json
+Content-Length: 47
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MjUxNXxEdi1CQkFFQ180SUFBUkFCRUFBQUl2LUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSUdjM1J5YVc1bkRBWUFCR3BwY204PXyHuFcej1zc0h6DT6poPFGD3Hur1I1GV5pMXp-W2PH48Q==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+{
+  "user_name": "jiro",
+  "password": "1111"
+}
+
+<> 2023-04-20T101828.200.json
+
+###
+
+GET http://localhost:8080/private/me
+Accept: application/json
+Connection: Keep-Alive
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
+Cookie: session=MTY4MTk1MjUxNXxEdi1CQkFFQ180SUFBUkFCRUFBQUl2LUNBQUVHYzNSeWFXNW5EQVlBQkhWelpYSUdjM1J5YVc1bkRBWUFCR3BwY204PXyHuFcej1zc0h6DT6poPFGD3Hur1I1GV5pMXp-W2PH48Q==
+Accept-Encoding: br,deflate,gzip,x-gzip
+
+<> 2023-04-20T100456.200.json
+
+###
+
 GET http://localhost:8080/private/me
 Accept: application/json
 Connection: Keep-Alive
@@ -225,455 +692,6 @@ Accept-Encoding: br,deflate,gzip,x-gzip
 }
 
 <> 2023-04-20T095408.400.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Type: application/json
-Content-Length: 48
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Cookie: mysessin=MTY4MTg5NjM1OXxEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQXNBQ1d4dloybHVWWE5sY2daemRISnBibWNNQWdBQXwPhuMm66wFmRPUkmwPL-ulWHpc4rZkxPB1eiLvUxllIg==
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "user_name": "taro",
-  "password": "1111",
-}
-
-<> 2023-04-20T095401.404.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Length: 0
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Cookie: mysessin=MTY4MTg5NjMzN3xEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQXNBQ1d4dloybHVWWE5sY2daemRISnBibWNNQWdBQXxqiizshh4pT6MJlDt3IqGtwimgcOsETHkp5Pf3hS070w==
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T182559.200.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Length: 0
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Cookie: mysessin=MTY4MTg5NjI2N3xEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQXNBQ1d4dloybHVWWE5sY2daemRISnBibWNNQWdBQXx0Jmv4xwVCZ3oOeCiwSi3DRUmGEC0SnWAVWUonqjgc1Q==
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T182537.200.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Length: 0
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Cookie: mysessin=MTY4MTg5NjI0OXxEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQXNBQ1d4dloybHVWWE5sY2daemRISnBibWNNQWdBQXwNgSj5xCbT_X8C0iPe971VjmnqDyVYngFcZCeeWAMJZA==
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T182427.200.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Length: 0
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Cookie: mysessin=MTY4MTg5NTcxNHxEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQXNBQ1d4dloybHVWWE5sY2daemRISnBibWNNQWdBQXzVjW7mLPOFsJq6SHkkaAoNJVAFWAjks2gnaqj4ry3QNw==
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T182409.200.txt
-
-###
-
-POST http://localhost:8080/v1/api/login
-Content-Length: 0
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T181514.200.txt
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-19T181429.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T181428-4.200.json
-
-###
-
-GET http://localhost:8080/v1/api/ledger
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T181428-3.200.json
-
-###
-
-GET http://localhost:8080/v1/api/groceries
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T181428-2.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T181428-1.200.json
-
-###
-
-POST http://localhost:8080/v1/api/cash
-Content-Type: application/json
-Content-Length: 56
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "donor_id": 2,
-  "receiver_id": 1,
-  "price": 1020
-}
-
-<> 2023-04-19T181428.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T173750.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T163149.200.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-19T162828-1.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T162828.200.json
-
-###
-
-GET http://localhost:8080/v1/api/ledger
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T162827-3.200.json
-
-###
-
-GET http://localhost:8080/v1/api/groceries
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T162827-2.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-19T162827-1.200.json
-
-###
-
-POST http://localhost:8080/v1/api/cash
-Content-Type: application/json
-Content-Length: 56
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "donor_id": 2,
-  "receiver_id": 1,
-  "price": 1020
-}
-
-<> 2023-04-19T162827.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T162824.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T161916.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T161708.400.txt
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 72
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 0,
-  "unit" : 10
-}
-
-<> 2023-04-19T155858.400.txt
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-18T181709-4.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 74
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 120,
-  "unit" : 10
-}
-
-<> 2023-04-18T181709-3.200.json
-
-###
-
-GET http://localhost:8080/v1/api/ledger
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-18T181709-2.200.json
-
-###
-
-GET http://localhost:8080/v1/api/groceries
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-18T181709-1.200.json
-
-###
-
-GET http://localhost:8080/v1/api/users
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-<> 2023-04-18T181709.200.json
-
-###
-
-POST http://localhost:8080/v1/api/cash
-Content-Type: application/json
-Content-Length: 56
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "donor_id": 2,
-  "receiver_id": 1,
-  "price": 1020
-}
-
-<> 2023-04-18T181708.200.json
-
-###
-
-POST http://localhost:8080/v1/api/purchase
-Content-Type: application/json
-Content-Length: 51
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "buyer_id": 1,
-  "grocery_id": 3,
-  "unit": 3
-}
-
-<> 2023-04-14T164240-5.200.json
-
-###
-
-POST http://localhost:8080/v1/api/groceries/provide
-Content-Type: application/json
-Content-Length: 74
-Connection: Keep-Alive
-User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.6)
-Accept-Encoding: br,deflate,gzip,x-gzip
-
-{
-  "provider_id": 1,
-  "name": "monaka",
-  "price" : 120,
-  "unit" : 10
-}
-
-<> 2023-04-14T164240-4.200.json
 
 ###
 

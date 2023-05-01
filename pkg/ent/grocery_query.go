@@ -21,7 +21,7 @@ import (
 type GroceryQuery struct {
 	config
 	ctx           *QueryContext
-	order         []OrderFunc
+	order         []grocery.OrderOption
 	inters        []Interceptor
 	predicates    []predicate.Grocery
 	withProvider  *UserQuery
@@ -58,7 +58,7 @@ func (gq *GroceryQuery) Unique(unique bool) *GroceryQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (gq *GroceryQuery) Order(o ...OrderFunc) *GroceryQuery {
+func (gq *GroceryQuery) Order(o ...grocery.OrderOption) *GroceryQuery {
 	gq.order = append(gq.order, o...)
 	return gq
 }
@@ -296,7 +296,7 @@ func (gq *GroceryQuery) Clone() *GroceryQuery {
 	return &GroceryQuery{
 		config:        gq.config,
 		ctx:           gq.ctx.Clone(),
-		order:         append([]OrderFunc{}, gq.order...),
+		order:         append([]grocery.OrderOption{}, gq.order...),
 		inters:        append([]Interceptor{}, gq.inters...),
 		predicates:    append([]predicate.Grocery{}, gq.predicates...),
 		withProvider:  gq.withProvider.Clone(),
@@ -497,7 +497,7 @@ func (gq *GroceryQuery) loadPurchased(ctx context.Context, query *PurchaseQuery,
 	}
 	query.withFKs = true
 	query.Where(predicate.Purchase(func(s *sql.Selector) {
-		s.Where(sql.InValues(grocery.PurchasedColumn, fks...))
+		s.Where(sql.InValues(s.C(grocery.PurchasedColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

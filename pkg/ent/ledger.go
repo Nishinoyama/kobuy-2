@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/ledger"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/user"
@@ -25,6 +26,7 @@ type Ledger struct {
 	Edges         LedgerEdges `json:"edges"`
 	user_payer    *int
 	user_receiver *int
+	selectValues  sql.SelectValues
 }
 
 // LedgerEdges holds the relations/edges for other nodes in the graph.
@@ -78,7 +80,7 @@ func (*Ledger) scanValues(columns []string) ([]any, error) {
 		case ledger.ForeignKeys[1]: // user_receiver
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Ledger", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -124,9 +126,17 @@ func (l *Ledger) assignValues(columns []string, values []any) error {
 				l.user_receiver = new(int)
 				*l.user_receiver = int(value.Int64)
 			}
+		default:
+			l.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Ledger.
+// This includes values selected through modifiers, order, etc.
+func (l *Ledger) Value(name string) (ent.Value, error) {
+	return l.selectValues.Get(name)
 }
 
 // QueryPayer queries the "payer" edge of the Ledger entity.

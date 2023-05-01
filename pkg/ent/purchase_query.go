@@ -20,7 +20,7 @@ import (
 type PurchaseQuery struct {
 	config
 	ctx         *QueryContext
-	order       []OrderFunc
+	order       []purchase.OrderOption
 	inters      []Interceptor
 	predicates  []predicate.Purchase
 	withBuyer   *UserQuery
@@ -57,7 +57,7 @@ func (pq *PurchaseQuery) Unique(unique bool) *PurchaseQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (pq *PurchaseQuery) Order(o ...OrderFunc) *PurchaseQuery {
+func (pq *PurchaseQuery) Order(o ...purchase.OrderOption) *PurchaseQuery {
 	pq.order = append(pq.order, o...)
 	return pq
 }
@@ -295,7 +295,7 @@ func (pq *PurchaseQuery) Clone() *PurchaseQuery {
 	return &PurchaseQuery{
 		config:      pq.config,
 		ctx:         pq.ctx.Clone(),
-		order:       append([]OrderFunc{}, pq.order...),
+		order:       append([]purchase.OrderOption{}, pq.order...),
 		inters:      append([]Interceptor{}, pq.inters...),
 		predicates:  append([]predicate.Purchase{}, pq.predicates...),
 		withBuyer:   pq.withBuyer.Clone(),

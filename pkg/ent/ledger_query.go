@@ -19,7 +19,7 @@ import (
 type LedgerQuery struct {
 	config
 	ctx          *QueryContext
-	order        []OrderFunc
+	order        []ledger.OrderOption
 	inters       []Interceptor
 	predicates   []predicate.Ledger
 	withPayer    *UserQuery
@@ -56,7 +56,7 @@ func (lq *LedgerQuery) Unique(unique bool) *LedgerQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (lq *LedgerQuery) Order(o ...OrderFunc) *LedgerQuery {
+func (lq *LedgerQuery) Order(o ...ledger.OrderOption) *LedgerQuery {
 	lq.order = append(lq.order, o...)
 	return lq
 }
@@ -294,7 +294,7 @@ func (lq *LedgerQuery) Clone() *LedgerQuery {
 	return &LedgerQuery{
 		config:       lq.config,
 		ctx:          lq.ctx.Clone(),
-		order:        append([]OrderFunc{}, lq.order...),
+		order:        append([]ledger.OrderOption{}, lq.order...),
 		inters:       append([]Interceptor{}, lq.inters...),
 		predicates:   append([]predicate.Ledger{}, lq.predicates...),
 		withPayer:    lq.withPayer.Clone(),

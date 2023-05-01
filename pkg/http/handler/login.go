@@ -51,7 +51,12 @@ func login(uc *ent.UserClient) func(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, err)
 			return
 		}
-		u, err := uc.Query().Where(user.NameEQ(req.UserName)).First(context.TODO())
+		u, err := uc.Query().Where(
+			user.And(
+				user.NameEQ(req.UserName),
+				user.PasswordEQ(req.Password),
+			),
+		).First(context.TODO())
 		if err != nil {
 			if ent.IsNotFound(err) {
 				c.JSON(http.StatusBadRequest, "Incorrect")

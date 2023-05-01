@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/user"
@@ -31,6 +32,7 @@ type Grocery struct {
 	// The values are being populated by the GroceryQuery when eager-loading is set.
 	Edges                   GroceryEdges `json:"edges"`
 	user_provided_groceries *int
+	selectValues            sql.SelectValues
 }
 
 // GroceryEdges holds the relations/edges for other nodes in the graph.
@@ -80,7 +82,7 @@ func (*Grocery) scanValues(columns []string) ([]any, error) {
 		case grocery.ForeignKeys[0]: // user_provided_groceries
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Grocery", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -137,9 +139,17 @@ func (gr *Grocery) assignValues(columns []string, values []any) error {
 				gr.user_provided_groceries = new(int)
 				*gr.user_provided_groceries = int(value.Int64)
 			}
+		default:
+			gr.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Grocery.
+// This includes values selected through modifiers, order, etc.
+func (gr *Grocery) Value(name string) (ent.Value, error) {
+	return gr.selectValues.Get(name)
 }
 
 // QueryProvider queries the "provider" edge of the Grocery entity.

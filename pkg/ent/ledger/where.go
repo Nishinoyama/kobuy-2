@@ -132,11 +132,7 @@ func HasPayer() predicate.Ledger {
 // HasPayerWith applies the HasEdge predicate on the "payer" edge with a given conditions (other predicates).
 func HasPayerWith(preds ...predicate.User) predicate.Ledger {
 	return predicate.Ledger(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PayerInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, PayerTable, PayerColumn),
-		)
+		step := newPayerStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -159,11 +155,7 @@ func HasReceiver() predicate.Ledger {
 // HasReceiverWith applies the HasEdge predicate on the "receiver" edge with a given conditions (other predicates).
 func HasReceiverWith(preds ...predicate.User) predicate.Ledger {
 	return predicate.Ledger(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ReceiverInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ReceiverTable, ReceiverColumn),
-		)
+		step := newReceiverStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

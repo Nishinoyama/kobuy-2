@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/grocery"
 	"github.com/nishinoyama/kobuy-2/pkg/ent/purchase"
@@ -29,6 +30,7 @@ type Purchase struct {
 	Edges             PurchaseEdges `json:"edges"`
 	grocery_purchased *int
 	user_purchased    *int
+	selectValues      sql.SelectValues
 }
 
 // PurchaseEdges holds the relations/edges for other nodes in the graph.
@@ -82,7 +84,7 @@ func (*Purchase) scanValues(columns []string) ([]any, error) {
 		case purchase.ForeignKeys[1]: // user_purchased
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Purchase", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -134,9 +136,17 @@ func (pu *Purchase) assignValues(columns []string, values []any) error {
 				pu.user_purchased = new(int)
 				*pu.user_purchased = int(value.Int64)
 			}
+		default:
+			pu.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Purchase.
+// This includes values selected through modifiers, order, etc.
+func (pu *Purchase) Value(name string) (ent.Value, error) {
+	return pu.selectValues.Get(name)
 }
 
 // QueryBuyer queries the "buyer" edge of the Purchase entity.

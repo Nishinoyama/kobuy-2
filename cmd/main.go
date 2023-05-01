@@ -45,9 +45,9 @@ func main() {
 	{
 		// seeding
 		if err := client.User.CreateBulk(
-			client.User.Create().SetName("taro"),
-			client.User.Create().SetName("jiro"),
-			client.User.Create().SetName("saro"),
+			client.User.Create().SetName("taro").SetPassword("taro"),
+			client.User.Create().SetName("jiro").SetPassword("jiro"),
+			client.User.Create().SetName("saro").SetPassword("saro"),
 		).Exec(context.TODO()); err != nil {
 			log.Fatal(err)
 		}
